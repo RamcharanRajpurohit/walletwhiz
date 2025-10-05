@@ -16,5 +16,5 @@ export default async function DashboardPage() {
     redirect('/login')
   }
 
-  return <DashboardContent userId={session.user.id} />
+  return <DashboardContent />
 }

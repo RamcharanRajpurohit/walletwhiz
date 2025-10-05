@@ -16,5 +16,5 @@ export default async function ExpensesPage() {
     redirect('/login')
   }
 
-  return <ExpensesContent userId={session.user.id} />
+  return <ExpensesContent/>
 }
