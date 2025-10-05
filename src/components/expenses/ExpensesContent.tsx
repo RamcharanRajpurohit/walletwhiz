@@ -7,7 +7,7 @@ import ExpenseFilters from './ExpenseFilters'
 import ExpenseModal from './ExpenseModal'
 import { ExpenseFilters as FilterType } from '@/types/expense'
 
-export default function ExpensesContent({ userId }: { userId: string }) {
+export default function ExpensesContent() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [filters, setFilters] = useState<FilterType>({})
   const [refreshKey, setRefreshKey] = useState(0)

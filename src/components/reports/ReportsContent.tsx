@@ -1,10 +1,23 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { TrendingUp, DollarSign, Receipt, PieChart } from 'lucide-react'
+import { TrendingUp, DollarSign, Receipt} from 'lucide-react'
 import { formatCurrency } from '@/utils/formatters'
 import CategoryChart from './CategoryChart'
 import MonthlyChart from './MonthlyChart'
+
+interface CategoryBreakdownItem {
+  category: string
+  total: number
+  count: number
+  percentage: number
+}
+
+interface MonthlyBreakdownItem {
+  month: string
+  total: number
+  count: number
+}
 
 interface ReportData {
   stats: {
@@ -12,8 +25,8 @@ interface ReportData {
     expenseCount: number
     averageExpense: number
   }
-  categoryBreakdown: any[]
-  monthlyBreakdown: any[]
+  categoryBreakdown: CategoryBreakdownItem[]
+  monthlyBreakdown: MonthlyBreakdownItem[]
 }
 
 export default function ReportsContent() {

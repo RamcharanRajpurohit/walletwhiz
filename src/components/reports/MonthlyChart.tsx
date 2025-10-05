@@ -2,8 +2,14 @@
 
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
+interface MonthlyData {
+  month: string
+  total: number
+  count: number
+}
+
 interface MonthlyChartProps {
-  data: any[]
+  data: MonthlyData[]
 }
 
 export default function MonthlyChart({ data }: MonthlyChartProps) {
@@ -26,7 +32,7 @@ export default function MonthlyChart({ data }: MonthlyChartProps) {
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="month" />
             <YAxis />
-            <Tooltip formatter={(value: any) => `₹${value.toFixed(2)}`} />
+            <Tooltip formatter={(value: number | string) => `₹${Number(value).toFixed(2)}`} />
             <Line 
               type="monotone" 
               dataKey="total" 

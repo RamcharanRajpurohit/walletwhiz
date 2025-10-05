@@ -53,9 +53,10 @@ export default function LoginForm() {
       toast.success('Welcome back!')
       router.push('/dashboard')
       router.refresh()
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to sign in')
-    } finally {
+    } catch (error) {
+  const errorMessage = error instanceof Error ? error.message : 'Failed to sign in'
+  toast.error(errorMessage)
+} finally {
       setLoading(false)
     }
   }
@@ -148,7 +149,7 @@ export default function LoginForm() {
 
       <div className="text-center">
         <p className="text-gray-600">
-          Don't have an account?{' '}
+          Don&apos;t have an account?{' '}
           <Link href="/signup" className="font-medium text-rose-600 hover:text-rose-500">
             Sign up
           </Link>

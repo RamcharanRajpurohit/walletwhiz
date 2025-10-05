@@ -1,5 +1,5 @@
 import { Metadata } from 'next'
-import { notFound, redirect } from 'next/navigation'
+import {redirect } from 'next/navigation'
 import { createServerClient } from '@/lib/supabase/server'
 
 export const metadata: Metadata = {
@@ -7,7 +7,6 @@ export const metadata: Metadata = {
 }
 
 export default async function ExpenseDetailPage({
-  params,
 }: {
   params: { id: string }
 }) {

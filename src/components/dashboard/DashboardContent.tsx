@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { TrendingUp, TrendingDown, Receipt, DollarSign } from 'lucide-react'
+import { TrendingUp,Receipt, DollarSign } from 'lucide-react'
 import { formatCurrency } from '@/utils/formatters'
 import RecentExpenses from './RecentExpenses'
 import ExpenseChart from './ExpenseChart'
@@ -13,7 +13,7 @@ interface DashboardStats {
   monthlyChange: number
 }
 
-export default function DashboardContent({ userId }: { userId: string }) {
+export default function DashboardContent() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -71,7 +71,7 @@ export default function DashboardContent({ userId }: { userId: string }) {
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
-        <p className="text-gray-600">Welcome back! Here's your expense overview.</p>
+        <p className="text-gray-600">Welcome back! Here&apos;s your expense overview.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

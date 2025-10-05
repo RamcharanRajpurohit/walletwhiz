@@ -3,8 +3,12 @@
 import { Download } from 'lucide-react'
 import { toast } from 'sonner'
 
+interface ExportData {
+  [key: string]: string | number | Date
+}
+
 interface ExportButtonProps {
-  data: any[]
+  data: ExportData[]
   filename: string
 }
 
@@ -22,12 +26,12 @@ export default function ExportButton({ data, filename }: ExportButtonProps) {
       document.body.removeChild(a)
       window.URL.revokeObjectURL(url)
       toast.success('Report exported successfully!')
-    } catch (error) {
+    } catch{
       toast.error('Failed to export report')
     }
   }
 
-  const convertToCSV = (data: any[]): string => {
+const convertToCSV = (data: ExportData[]): string => {
     if (data.length === 0) return ''
     
     const headers = Object.keys(data[0]).join(',')

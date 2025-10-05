@@ -1,6 +1,6 @@
 'use client'
 
-import { Search, Calendar } from 'lucide-react'
+import { Search} from 'lucide-react'
 import { DEFAULT_CATEGORIES } from '@/constants/categories'
 import { ExpenseFilters as FilterType } from '@/types/expense'
 

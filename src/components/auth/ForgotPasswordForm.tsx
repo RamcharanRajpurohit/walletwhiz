@@ -38,10 +38,11 @@ export default function ForgotPasswordForm() {
 
       setSent(true)
       toast.success('Password reset email sent!')
-    } catch (error: any) {
-      setError(error.message || 'Failed to send reset email')
-      toast.error('Failed to send reset email')
-    } finally {
+    }  catch (error) {
+  const errorMessage = error instanceof Error ? error.message : 'Failed to send reset email'
+  setError(errorMessage)
+  toast.error('Failed to send reset email')
+} finally {
       setLoading(false)
     }
   }
@@ -52,7 +53,7 @@ export default function ForgotPasswordForm() {
         <div className="text-6xl mb-4">📧</div>
         <h2 className="text-2xl font-bold text-gray-900">Check your email</h2>
         <p className="text-gray-600">
-          We've sent password reset instructions to <strong>{email}</strong>
+          We&apos;ve sent password reset instructions to <strong>{email}</strong>
         </p>
         <Link
           href="/login"

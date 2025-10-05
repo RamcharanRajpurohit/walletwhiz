@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase/server'
 import { connectDB } from '@/lib/mongodb/connection'
 import { ExpenseModel } from '@/lib/mongodb/models'
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const supabase = createServerClient()
     const { data: { session } } = await supabase.auth.getSession()

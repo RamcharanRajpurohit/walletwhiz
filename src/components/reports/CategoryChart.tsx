@@ -1,11 +1,18 @@
 'use client'
 
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts'
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
 import { DEFAULT_CATEGORIES } from '@/constants/categories'
+interface CategoryData {
+  category: string
+  total: number
+  count: number
+  percentage: number
+}
 
 interface CategoryChartProps {
-  data: any[]
+  data: CategoryData[]
 }
+
 
 export default function CategoryChart({ data }: CategoryChartProps) {
   const chartData = data.map(item => {
@@ -42,7 +49,7 @@ export default function CategoryChart({ data }: CategoryChartProps) {
                 <Cell key={`cell-${index}`} fill={entry.color} />
               ))}
             </Pie>
-            <Tooltip formatter={(value: any) => `₹${value.toFixed(2)}`} />
+            <Tooltip formatter={(value: number | string) => `₹${Number(value).toFixed(2)}`} />
           </PieChart>
         </ResponsiveContainer>
       )}

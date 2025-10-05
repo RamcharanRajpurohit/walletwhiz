@@ -20,8 +20,14 @@ export async function GET(request: NextRequest) {
     const endDate = searchParams.get('endDate')
     const search = searchParams.get('search')
     const limit = searchParams.get('limit')
+interface MongoQuery {
+  userId: string
+  category?: string
+  note?: { $regex: string; $options: string }
+  date?: { $gte?: Date; $lte?: Date }
+}
 
-    const query: any = { userId: session.user.id }
+const query: MongoQuery = { userId: session.user.id }
 
     if (category) query.category = category
     if (search) query.note = { $regex: search, $options: 'i' }

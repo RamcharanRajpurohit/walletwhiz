@@ -2,14 +2,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase/server'
 import { connectDB } from '@/lib/mongodb/connection'
 import { ExpenseModel } from '@/lib/mongodb/models'
-import mongoose from 'mongoose'
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = createServerClient()
+    const { id } = await context.params
+    const supabase = await createServerClient()
     const { data: { session } } = await supabase.auth.getSession()
 
     if (!session) {
@@ -22,7 +22,7 @@ export async function PUT(
     await connectDB()
 
     const expense = await ExpenseModel.findOneAndUpdate(
-      { _id: params.id, userId: session.user.id },
+      { _id: id, userId: session.user.id },
       {
         amount: Number(amount),
         category,
@@ -45,10 +45,11 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = createServerClient()
+    const { id } = await context.params
+    const supabase = await createServerClient()
     const { data: { session } } = await supabase.auth.getSession()
 
     if (!session) {
@@ -58,7 +59,7 @@ export async function DELETE(
     await connectDB()
 
     const expense = await ExpenseModel.findOneAndDelete({
-      _id: params.id,
+      _id: id,
       userId: session.user.id,
     })
 

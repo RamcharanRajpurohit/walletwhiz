@@ -5,8 +5,10 @@ import { X, AlertCircle } from 'lucide-react'
 import { DEFAULT_CATEGORIES } from '@/constants/categories'
 import { toast } from 'sonner'
 
+import { Expense } from '@/types/expense'
+
 interface ExpenseModalProps {
-  expense?: any
+  expense?: Expense | null
   onClose: () => void
   onSuccess: () => void
 }
@@ -67,7 +69,7 @@ export default function ExpenseModal({ expense, onClose, onSuccess }: ExpenseMod
 
       toast.success(expense?._id ? 'Expense updated successfully' : 'Expense added successfully')
       onSuccess()
-    } catch (error) {
+    } catch {
       toast.error('Failed to save expense')
     } finally {
       setLoading(false)

@@ -50,9 +50,10 @@ export default function ResetPasswordForm() {
 
       toast.success('Password updated successfully!')
       router.push('/login')
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to reset password')
-    } finally {
+    } catch (error) {
+  const errorMessage = error instanceof Error ? error.message : 'Failed to reset password'
+  toast.error(errorMessage)
+}finally {
       setLoading(false)
     }
   }

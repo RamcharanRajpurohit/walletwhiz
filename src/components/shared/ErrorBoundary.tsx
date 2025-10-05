@@ -1,6 +1,6 @@
 'use client'
 
-import { Component, ReactNode } from 'react'
+import { Component, ReactNode, ErrorInfo } from 'react'
 import { AlertTriangle } from 'lucide-react'
 
 interface Props {
@@ -19,18 +19,23 @@ export default class ErrorBoundary extends Component<Props, State> {
   }
 
   static getDerivedStateFromError(error: Error): State {
+    // Update state so the next render shows the fallback UI.
     return { hasError: true, error }
   }
 
-  componentDidCatch(error: Error, errorInfo: any) {
-    console.error('ErrorBoundary caught an error', error, errorInfo)
-    }
-    render() {
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    // Log the error details to the console (or send to a logging service)
+    console.error('ErrorBoundary caught an error:', error, errorInfo)
+  }
+
+  render() {
     if (this.state.hasError) {
       return (
         <div className="flex flex-col items-center justify-center p-8 bg-red-50 border border-red-200 rounded-lg">
           <AlertTriangle className="h-12 w-12 text-red-600 mb-4" />
-          <h2 className="text-xl font-semibold text-red-800 mb-2">Something went wrong.</h2>
+          <h2 className="text-xl font-semibold text-red-800 mb-2">
+            Something went wrong.
+          </h2>
           <p className="text-red-700">{this.state.error?.message}</p>
         </div>
       )

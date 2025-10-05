@@ -1,5 +1,5 @@
 'use client'
-
+import Link from 'next/link'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { LogOut, Menu, X, Sun } from 'lucide-react'
@@ -48,15 +48,15 @@ export default function Header() {
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-yellow-200">
           <nav className="px-4 py-4 space-y-2">
-            <a href="/dashboard" className="block px-4 py-3 rounded-lg hover:bg-yellow-100 font-medium">
+            <Link href="/dashboard" className="block px-4 py-3 rounded-lg hover:bg-yellow-100 font-medium">
               Dashboard
-            </a>
-            <a href="/expenses" className="block px-4 py-3 rounded-lg hover:bg-yellow-100 font-medium">
+            </Link>
+            <Link href="/expenses" className="block px-4 py-3 rounded-lg hover:bg-yellow-100 font-medium">
               Expenses
-            </a>
-            <a href="/reports" className="block px-4 py-3 rounded-lg hover:bg-yellow-100 font-medium">
+            </Link>
+            <Link href="/reports" className="block px-4 py-3 rounded-lg hover:bg-yellow-100 font-medium">
               Reports
-            </a>
+            </Link>
           </nav>
         </div>
       )}

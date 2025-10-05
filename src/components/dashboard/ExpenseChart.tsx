@@ -1,10 +1,14 @@
 'use client'
-
+interface ChartDataItem {
+  category: string
+  total: number
+}
 import { useEffect, useState } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
 export default function ExpenseChart() {
-  const [chartData, setChartData] = useState<any[]>([])
+  
+  const [chartData, setChartData] = useState<ChartDataItem[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {

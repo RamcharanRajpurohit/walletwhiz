@@ -1,6 +1,5 @@
 'use client'
-
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Edit2, Trash2 } from 'lucide-react'
 import { formatCurrency, formatDate } from '@/utils/formatters'
 import { Expense, ExpenseFilters } from '@/types/expense'
@@ -19,11 +18,7 @@ export default function ExpenseList({ filters, refreshKey, onUpdate }: ExpenseLi
   const [loading, setLoading] = useState(true)
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null)
 
-  useEffect(() => {
-    fetchExpenses()
-  }, [filters, refreshKey])
-
-  const fetchExpenses = async () => {
+  const fetchExpenses = useCallback(async () => {
     setLoading(true)
     try {
       const params = new URLSearchParams()
@@ -35,12 +30,16 @@ export default function ExpenseList({ filters, refreshKey, onUpdate }: ExpenseLi
       const res = await fetch(`/api/expenses?${params}`)
       const data = await res.json()
       setExpenses(data.expenses || [])
-    } catch (error) {
+    } catch {
       toast.error('Failed to fetch expenses')
     } finally {
       setLoading(false)
     }
-  }
+  }, [filters])
+
+  useEffect(() => {
+    fetchExpenses()
+  }, [filters, refreshKey, fetchExpenses])
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this expense?')) return
@@ -51,7 +50,7 @@ export default function ExpenseList({ filters, refreshKey, onUpdate }: ExpenseLi
       
       toast.success('Expense deleted successfully')
       onUpdate()
-    } catch (error) {
+    } catch{
       toast.error('Failed to delete expense')
     }
   }
