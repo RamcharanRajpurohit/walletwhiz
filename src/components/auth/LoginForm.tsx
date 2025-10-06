@@ -63,6 +63,7 @@ export default function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      
       <div>
         <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
           Email Address
@@ -153,7 +154,9 @@ export default function LoginForm() {
           <Link href="/signup" className="font-medium text-rose-600 hover:text-rose-500">
             Sign up
           </Link>
+          
         </p>
+        
       </div>
     </form>
   )
