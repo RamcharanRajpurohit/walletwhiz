@@ -5,7 +5,7 @@ import { ExpenseModel } from '@/lib/mongodb/models'
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createServerClient()
+    const supabase = await createServerClient()
     const { data: { session } } = await supabase.auth.getSession()
 
     if (!session) {
@@ -54,7 +54,7 @@ const query: MongoQuery = { userId: session.user.id }
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createServerClient()
+    const supabase = await createServerClient()
     const { data: { session } } = await supabase.auth.getSession()
 
     if (!session) {
