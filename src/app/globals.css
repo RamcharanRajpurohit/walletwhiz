@@ -110,7 +110,12 @@ body {
 }
 .dark input::placeholder,
 .dark textarea::placeholder { color: #52525b !important; }
-.dark input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.6); }
+.dark input[type="date"] {
+  color-scheme: dark;
+}
+input[type="date"] {
+  color-scheme: light;
+}
 .dark option { background-color: #111111; color: #d4d4d8; }
 
 /* Gradient text (logo) */
