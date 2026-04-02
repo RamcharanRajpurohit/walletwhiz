@@ -8,8 +8,8 @@ import { useTransactions } from '@/context/TransactionContext'
 export default function RecentExpenses() {
   const { recentTransactions, loadingTransactions } = useTransactions()
 
-  const getCategoryIcon = (category: string) =>
-    DEFAULT_CATEGORIES.find(c => c.id === category)?.icon || '📦'
+  const getCategoryInfo = (category: string) =>
+    DEFAULT_CATEGORIES.find(c => c.id === category) || DEFAULT_CATEGORIES[DEFAULT_CATEGORIES.length - 1]
 
   if (loadingTransactions) {
     return (
@@ -43,7 +43,7 @@ export default function RecentExpenses() {
               className="flex items-center justify-between p-4 bg-gradient-to-r from-yellow-50 to-rose-50 rounded-xl border border-yellow-200 hover:shadow-md transition-all duration-200"
             >
               <div className="flex items-center space-x-3">
-                <span className="text-2xl">{getCategoryIcon(expense.category)}</span>
+                {(() => { const c = getCategoryInfo(expense.category); return <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: `${c.color}20` }}><c.icon className="h-5 w-5" style={{ color: c.color }} /></div> })()}
                 <div>
                   <p className="font-medium text-gray-900">{expense.note}</p>
                   <p className="text-sm text-gray-500">{formatDate(expense.date)}</p>
