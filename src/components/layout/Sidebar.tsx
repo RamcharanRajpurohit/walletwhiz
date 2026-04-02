@@ -19,7 +19,7 @@ export default function Sidebar() {
       <div className="flex flex-col flex-grow bg-white/90 backdrop-blur-md border-r-2 border-yellow-200/50 px-4 py-8">
         <nav className="flex-1 space-y-2">
           {navigation.map((item) => {
-            const isActive = pathname === item.href
+            const isActive = pathname !== null && pathname === item.href
             return (
               <button
                 key={item.name}

@@ -1,6 +1,5 @@
 'use client'
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { LogOut, Menu, X, Sun, ShieldCheck, Eye, Moon } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
@@ -9,7 +8,6 @@ import { useTheme } from '@/context/ThemeContext'
 import { navigateTo } from '@/hooks/useClientPath'
 
 export default function Header() {
-  const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { role, setRole } = useRole()
   const { theme, toggleTheme } = useTheme()
@@ -18,8 +16,7 @@ export default function Header() {
     const supabase = createClient()
     await supabase.auth.signOut()
     toast.success('Logged out successfully')
-    router.push('/login')
-    router.refresh()
+    window.location.href = '/login'
   }
 
   return (

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 
 export function useClientPath() {
-  const [pathname, setPathname] = useState('/dashboard')
+  const [pathname, setPathname] = useState<string | null>(null)
 
   useEffect(() => {
     setPathname(window.location.pathname)

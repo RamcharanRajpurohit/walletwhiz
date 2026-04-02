@@ -9,7 +9,7 @@ import ReportsContent from '@/components/reports/ReportsContent'
 import InsightsContent from '@/components/insights/InsightsContent'
 import { useClientPath } from '@/hooks/useClientPath'
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+export default function AppLayout({ children: _ }: { children: React.ReactNode }) {
   const pathname = useClientPath()
 
   return (
@@ -19,7 +19,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <div className="flex">
           <Sidebar />
           <main className="flex-1 p-4 md:p-8 md:ml-64">
-            <div className={pathname === '/dashboard' ? '' : 'hidden'}><DashboardContent /></div>
+            <div className={!pathname || pathname === '/dashboard' ? '' : 'hidden'}><DashboardContent /></div>
             <div className={pathname === '/expenses' ? '' : 'hidden'}><ExpensesContent /></div>
             <div className={pathname === '/reports' ? '' : 'hidden'}><ReportsContent /></div>
             <div className={pathname === '/insights' ? '' : 'hidden'}><InsightsContent /></div>
