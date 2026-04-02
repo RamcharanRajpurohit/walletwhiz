@@ -14,55 +14,94 @@ export async function GET() {
 
     await connectDB()
 
-    const expenses = await ExpenseModel.find({ userId: session.user.id }).lean()
+    const userId = session.user.id
 
-    // Calculate total spent
-    const totalSpent = expenses.reduce((sum, exp) => sum + exp.amount, 0)
-    const expenseCount = expenses.length
-    const averageExpense = expenseCount > 0 ? totalSpent / expenseCount : 0
+    // Single aggregation pipeline — all computation in MongoDB, nothing in Node
+    const [result] = await ExpenseModel.aggregate([
+      { $match: { userId } },
+      {
+        $facet: {
+          // Overall stats split by type
+          stats: [
+            {
+              $group: {
+                _id: '$type',
+                total: { $sum: '$amount' },
+                count: { $sum: 1 },
+              },
+            },
+          ],
+          // Category breakdown for expenses only
+          categoryBreakdown: [
+            { $match: { type: { $in: ['expense', null] } } },
+            {
+              $group: {
+                _id: '$category',
+                total: { $sum: '$amount' },
+                count: { $sum: 1 },
+              },
+            },
+            { $sort: { total: -1 } },
+          ],
+          // Monthly breakdown for expenses only (last 12 months)
+          monthlyBreakdown: [
+            { $match: { type: { $in: ['expense', null] } } },
+            {
+              $group: {
+                _id: {
+                  year: { $year: '$date' },
+                  month: { $month: '$date' },
+                },
+                total: { $sum: '$amount' },
+                count: { $sum: 1 },
+              },
+            },
+            { $sort: { '_id.year': 1, '_id.month': 1 } },
+          ],
+        },
+      },
+    ])
 
-    // Category breakdown
-    const categoryMap = new Map<string, { total: number; count: number }>()
-    expenses.forEach(exp => {
-      const current = categoryMap.get(exp.category) || { total: 0, count: 0 }
-      categoryMap.set(exp.category, {
-        total: current.total + exp.amount,
-        count: current.count + 1,
-      })
-    })
+    // Build stats from facet result
+    let totalSpent = 0
+    let totalIncome = 0
+    let expenseCount = 0
+    let expenseOnlyCount = 0
 
-    const categoryBreakdown = Array.from(categoryMap.entries()).map(([category, data]) => ({
-      category,
-      total: data.total,
-      count: data.count,
-      percentage: totalSpent > 0 ? (data.total / totalSpent) * 100 : 0,
+    for (const s of result.stats) {
+      if (s._id === 'income') {
+        totalIncome += s.total
+        expenseCount += s.count
+      } else {
+        // 'expense' or null (legacy records without type)
+        totalSpent += s.total
+        expenseOnlyCount += s.count
+        expenseCount += s.count
+      }
+    }
+
+    // Compute category percentages
+    const categoryBreakdown = result.categoryBreakdown.map((c: { _id: string; total: number; count: number }) => ({
+      category: c._id,
+      total: c.total,
+      count: c.count,
+      percentage: totalSpent > 0 ? (c.total / totalSpent) * 100 : 0,
     }))
 
-    // Monthly breakdown
-    const monthMap = new Map<string, { total: number; count: number }>()
-    expenses.forEach(exp => {
-      const date = new Date(exp.date)
-      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
-      const current = monthMap.get(monthKey) || { total: 0, count: 0 }
-      monthMap.set(monthKey, {
-        total: current.total + exp.amount,
-        count: current.count + 1,
-      })
-    })
-
-    const monthlyBreakdown = Array.from(monthMap.entries())
-      .sort((a, b) => a[0].localeCompare(b[0]))
-      .map(([month, data]) => ({
-        month,
-        total: data.total,
-        count: data.count,
-      }))
+    // Format monthly breakdown
+    const monthlyBreakdown = result.monthlyBreakdown.map((m: { _id: { year: number; month: number }; total: number; count: number }) => ({
+      month: `${m._id.year}-${String(m._id.month).padStart(2, '0')}`,
+      total: m.total,
+      count: m.count,
+    }))
 
     return NextResponse.json({
       stats: {
         totalSpent,
+        totalIncome,
+        totalBalance: totalIncome - totalSpent,
         expenseCount,
-        averageExpense,
+        averageExpense: expenseOnlyCount > 0 ? totalSpent / expenseOnlyCount : 0,
       },
       categoryBreakdown,
       monthlyBreakdown,

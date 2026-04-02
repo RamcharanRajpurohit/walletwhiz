@@ -3,6 +3,7 @@ export interface Expense {
   userId: string
   amount: number
   category: string
+  type?: 'income' | 'expense'
   date: Date
   note: string
   createdAt?: Date
@@ -12,6 +13,7 @@ export interface Expense {
 export interface ExpenseFormData {
   amount: string
   category: string
+  type: 'income' | 'expense'
   date: string
   note: string
 }
@@ -21,4 +23,5 @@ export interface ExpenseFilters {
   startDate?: string
   endDate?: string
   search?: string
+  type?: 'income' | 'expense' | ''
 }

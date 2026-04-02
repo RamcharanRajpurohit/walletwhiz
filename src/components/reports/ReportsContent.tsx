@@ -1,55 +1,15 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { TrendingUp, DollarSign, Receipt} from 'lucide-react'
+import { TrendingUp, DollarSign, Receipt } from 'lucide-react'
 import { formatCurrency } from '@/utils/formatters'
 import CategoryChart from './CategoryChart'
 import MonthlyChart from './MonthlyChart'
-
-interface CategoryBreakdownItem {
-  category: string
-  total: number
-  count: number
-  percentage: number
-}
-
-interface MonthlyBreakdownItem {
-  month: string
-  total: number
-  count: number
-}
-
-interface ReportData {
-  stats: {
-    totalSpent: number
-    expenseCount: number
-    averageExpense: number
-  }
-  categoryBreakdown: CategoryBreakdownItem[]
-  monthlyBreakdown: MonthlyBreakdownItem[]
-}
+import { useTransactions } from '@/context/TransactionContext'
 
 export default function ReportsContent() {
-  const [data, setData] = useState<ReportData | null>(null)
-  const [loading, setLoading] = useState(true)
+  const { reportStats, loadingReports } = useTransactions()
 
-  useEffect(() => {
-    fetchReports()
-  }, [])
-
-  const fetchReports = async () => {
-    try {
-      const res = await fetch('/api/reports')
-      const reportData = await res.json()
-      setData(reportData)
-    } catch (error) {
-      console.error('Failed to fetch reports:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  if (loading) {
+  if (loadingReports) {
     return (
       <div className="flex items-center justify-center h-96">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500"></div>
@@ -60,19 +20,19 @@ export default function ReportsContent() {
   const statCards = [
     {
       title: 'Total Spent',
-      value: formatCurrency(data?.stats.totalSpent || 0),
+      value: formatCurrency(reportStats?.totalSpent || 0),
       icon: DollarSign,
       color: 'from-yellow-400 to-yellow-500',
     },
     {
-      title: 'Total Expenses',
-      value: data?.stats.expenseCount || 0,
+      title: 'Total Transactions',
+      value: reportStats?.expenseCount || 0,
       icon: Receipt,
       color: 'from-rose-400 to-rose-500',
     },
     {
       title: 'Average Expense',
-      value: formatCurrency(data?.stats.averageExpense || 0),
+      value: formatCurrency(reportStats?.averageExpense || 0),
       icon: TrendingUp,
       color: 'from-purple-400 to-purple-500',
     },
@@ -80,11 +40,6 @@ export default function ReportsContent() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Reports & Analytics</h1>
-        <p className="text-gray-600">Analyze your spending patterns and trends</p>
-      </div>
-
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {statCards.map((card, index) => (
           <div
@@ -105,8 +60,8 @@ export default function ReportsContent() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <CategoryChart data={data?.categoryBreakdown || []} />
-        <MonthlyChart data={data?.monthlyBreakdown || []} />
+        <CategoryChart />
+        <MonthlyChart />
       </div>
     </div>
   )

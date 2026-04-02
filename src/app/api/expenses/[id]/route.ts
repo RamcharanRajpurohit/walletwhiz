@@ -17,7 +17,7 @@ export async function PUT(
     }
 
     const body = await request.json()
-    const { amount, category, date, note } = body
+    const { amount, category, type, date, note } = body
 
     await connectDB()
 
@@ -26,6 +26,7 @@ export async function PUT(
       {
         amount: Number(amount),
         category,
+        type: type || 'expense',
         date: new Date(date),
         note,
       },

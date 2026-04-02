@@ -28,9 +28,10 @@ export async function proxy(req: NextRequest) {
   } = await supabase.auth.getSession()
 
   // Protected routes
-  if (req.nextUrl.pathname.startsWith('/dashboard') || 
+  if (req.nextUrl.pathname.startsWith('/dashboard') ||
       req.nextUrl.pathname.startsWith('/expenses') ||
-      req.nextUrl.pathname.startsWith('/reports')) {
+      req.nextUrl.pathname.startsWith('/reports') ||
+      req.nextUrl.pathname.startsWith('/insights')) {
     if (!session) {
       return NextResponse.redirect(new URL('/login', req.url))
     }
@@ -48,5 +49,5 @@ export async function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/expenses/:path*', '/reports/:path*', '/login', '/signup']
+  matcher: ['/dashboard/:path*', '/expenses/:path*', '/reports/:path*', '/insights/:path*', '/login', '/signup']
 }

@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import { Toaster } from 'sonner'
+import { RoleProvider } from '@/context/RoleContext'
+import { ThemeProvider } from '@/context/ThemeContext'
 export const metadata: Metadata = {
   title: 'Expense Tracker - Manage Your Personal Finances',
   description: 'Track your daily expenses, categorize spending, and gain insights into your financial habits with our easy-to-use expense tracker.',
@@ -21,8 +23,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        {children}
-        <Toaster position="top-right" richColors />
+        <ThemeProvider>
+          <RoleProvider>
+            {children}
+          </RoleProvider>
+        </ThemeProvider>
+        <Toaster position="top-right" richColors duration={1500} />
       </body>
     </html>
   )

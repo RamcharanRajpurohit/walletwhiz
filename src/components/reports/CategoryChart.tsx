@@ -2,20 +2,12 @@
 
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
 import { DEFAULT_CATEGORIES } from '@/constants/categories'
-interface CategoryData {
-  category: string
-  total: number
-  count: number
-  percentage: number
-}
+import { useTransactions } from '@/context/TransactionContext'
 
-interface CategoryChartProps {
-  data: CategoryData[]
-}
+export default function CategoryChart() {
+  const { categoryBreakdown } = useTransactions()
 
-
-export default function CategoryChart({ data }: CategoryChartProps) {
-  const chartData = data.map(item => {
+  const chartData = categoryBreakdown.map(item => {
     const category = DEFAULT_CATEGORIES.find(c => c.id === item.category)
     return {
       name: category?.name || item.category,
@@ -27,7 +19,7 @@ export default function CategoryChart({ data }: CategoryChartProps) {
   return (
     <div className="bg-white/90 backdrop-blur-md border-2 border-yellow-200/50 rounded-2xl p-6 shadow-lg">
       <h2 className="text-xl font-bold text-gray-900 mb-6">Spending by Category</h2>
-      
+
       {chartData.length === 0 ? (
         <div className="h-80 flex items-center justify-center">
           <p className="text-gray-500">No data available</p>
@@ -40,7 +32,7 @@ export default function CategoryChart({ data }: CategoryChartProps) {
               cx="50%"
               cy="50%"
               labelLine={false}
-              label={({ name}) => `${name}`}
+              label={({ name }) => `${name}`}
               outerRadius={80}
               fill="#8884d8"
               dataKey="value"

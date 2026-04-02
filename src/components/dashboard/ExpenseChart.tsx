@@ -1,33 +1,18 @@
 'use client'
-interface ChartDataItem {
-  category: string
-  total: number
-}
-import { useEffect, useState } from 'react'
+
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { useTransactions } from '@/context/TransactionContext'
+import { DEFAULT_CATEGORIES } from '@/constants/categories'
 
 export default function ExpenseChart() {
-  
-  const [chartData, setChartData] = useState<ChartDataItem[]>([])
-  const [loading, setLoading] = useState(true)
+  const { categoryBreakdown, loadingReports } = useTransactions()
 
-  useEffect(() => {
-    fetchChartData()
-  }, [])
+  const chartData = categoryBreakdown.map(item => ({
+    category: DEFAULT_CATEGORIES.find(c => c.id === item.category)?.name ?? item.category,
+    total: item.total,
+  }))
 
-  const fetchChartData = async () => {
-    try {
-      const res = await fetch('/api/reports')
-      const data = await res.json()
-      setChartData(data.categoryBreakdown || [])
-    } catch (error) {
-      console.error('Failed to fetch chart data:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  if (loading) {
+  if (loadingReports) {
     return (
       <div className="bg-white/90 backdrop-blur-md border-2 border-yellow-200/50 rounded-2xl p-6 shadow-lg">
         <div className="animate-pulse h-80 bg-gray-200 rounded"></div>
@@ -38,7 +23,7 @@ export default function ExpenseChart() {
   return (
     <div className="bg-white/90 backdrop-blur-md border-2 border-yellow-200/50 rounded-2xl p-6 shadow-lg">
       <h2 className="text-xl font-bold text-gray-900 mb-6">Spending by Category</h2>
-      
+
       {chartData.length === 0 ? (
         <div className="h-80 flex items-center justify-center">
           <p className="text-gray-500">No data available</p>

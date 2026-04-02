@@ -52,7 +52,6 @@ export default function LoginForm() {
       
       toast.success('Welcome back!')
       router.push('/dashboard')
-      router.refresh()
     } catch (error) {
   const errorMessage = error instanceof Error ? error.message : 'Failed to sign in'
   toast.error(errorMessage)

@@ -1,18 +1,18 @@
 'use client'
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Receipt, BarChart3 } from 'lucide-react'
+import { LayoutDashboard, Receipt, BarChart3, Lightbulb } from 'lucide-react'
 import { cn } from '@/utils/cn'
+import { useClientPath, navigateTo } from '@/hooks/useClientPath'
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Expenses', href: '/expenses', icon: Receipt },
   { name: 'Reports', href: '/reports', icon: BarChart3 },
+  { name: 'Insights', href: '/insights', icon: Lightbulb },
 ]
 
 export default function Sidebar() {
-  const pathname = usePathname()
+  const pathname = useClientPath()
 
   return (
     <aside className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 md:pt-20">
@@ -21,11 +21,11 @@ export default function Sidebar() {
           {navigation.map((item) => {
             const isActive = pathname === item.href
             return (
-              <Link
+              <button
                 key={item.name}
-                href={item.href}
+                onClick={() => navigateTo(item.href)}
                 className={cn(
-                  'flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200',
+                  'w-full flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200',
                   isActive
                     ? 'bg-gradient-to-r from-yellow-400 to-rose-400 text-white shadow-lg'
                     : 'text-gray-700 hover:bg-yellow-100'
@@ -33,7 +33,7 @@ export default function Sidebar() {
               >
                 <item.icon className="mr-3 h-5 w-5" />
                 {item.name}
-              </Link>
+              </button>
             )
           })}
         </nav>

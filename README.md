@@ -1,226 +1,149 @@
+# WalletWhiz — Finance Dashboard
 
----
-
-```markdown
-# Personal Expense Tracker
-
-A modern, full-stack expense tracking application built with Next.js 14, TypeScript, MongoDB, Supabase Auth, and Tailwind CSS.
+A full-stack finance dashboard for tracking income, expenses, and spending patterns — built as part of a frontend engineering assignment.
 
 ## Live Demo
 
-You can access the live version of the application here:  
-[https://walletwhiz-eight.vercel.app/dashboard]
+[https://walletwhiz-eight.vercel.app/dashboard](https://walletwhiz-eight.vercel.app/dashboard)
 
-**Demo Credentials:**  
-- Email: test@gmail.com  
-- Password: password
+**Demo credentials:**
+- Email: `test@gmail.com`
+- Password: `password`
 
-## Features
+---
 
-### Core Functionality
-- **Add Expense** - Create expenses with amount, date, category, and notes
-- **View Expenses** - Browse all expenses with filtering options
-- **Update Expense** - Edit existing expense details
-- **Delete Expense** - Remove expenses from the system
-- **Data Persistence** - MongoDB database for reliable storage
-- **Authentication** - Secure user authentication with Supabase
-- **Validation** - Comprehensive input validation and error handling
-
-### Advanced Features
-- **Categories** - 8 pre-defined categories (Food, Travel, Bills, Shopping, Entertainment, Health, Education, Others)
-- **Summary Reports** - Visual analytics including:
-  - Total spending overview
-  - Category-wise breakdown with pie charts
-  - Monthly spending trends with line charts
-  - Average expense calculations
-- **Advanced Filters** - Filter by:
-  - Date range (start and end date)
-  - Category
-  - Search by note text
-- **Responsive Design** - Optimized for mobile, tablet, and desktop
-- **Modern UI** - Beautiful gradient themes with glassmorphism effects
-- **Performance** - Fast loading with optimized queries
-- **Security** - Protected routes with middleware authentication
-
-## Tech Stack
-
-- **Frontend**: Next.js 14 (App Router), React 18, TypeScript
-- **Styling**: Tailwind CSS, Custom gradients
-- **Authentication**: Supabase Auth
-- **Database**: MongoDB with Mongoose ODM
-- **Charts**: Recharts for data visualization
-- **Icons**: Lucide React
-- **Form Handling**: React Hook Form with Zod validation
-- **Notifications**: Sonner for toast notifications
-
-
-````
-
-## Getting Started
+## Setup
 
 ### Prerequisites
+- Node.js 18+
+- MongoDB (local or Atlas)
+- Supabase project (for auth)
 
-- Node.js 18+ installed
-- MongoDB Atlas account or local MongoDB
-- Supabase account
+### Environment Variables
 
-### Installation
-
-1. **Clone and setup**
-```bash
-# Run the setup script
-chmod +x setup.sh
-./setup.sh
-
-# Or manually create structure and install
-npm install
-````
-
-2. **Configure Environment Variables**
-
-Create `.env.local` in the root directory:
+Create `.env.local`:
 
 ```env
-# Supabase
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-
-# MongoDB
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/
-MONGODB_DB_NAME=expense_tracker
-
-# App
-NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+MONGODB_URI=your_mongodb_connection_string
 ```
 
-3. **Setup Supabase**
-
-* Create a new project at [supabase.com](https://supabase.com)
-* Enable Email authentication
-* Copy your project URL and keys to `.env.local`
-
-4. **Setup MongoDB**
-
-* Create a cluster at [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
-* Create a database user
-* Whitelist your IP address
-* Copy connection string to `.env.local`
-
-5. **Run Development Server**
+### Install & Run
 
 ```bash
+npm install
 npm run dev
 ```
 
-Visit [http://localhost:3000](http://localhost:3000)
+Open [http://localhost:3000](http://localhost:3000).
 
-## API Routes
+### Seed Sample Data (optional)
 
-### Expenses
-
-* `GET /api/expenses` - List expenses with filters
-* `POST /api/expenses` - Create new expense
-* `PUT /api/expenses/[id]` - Update expense
-* `DELETE /api/expenses/[id]` - Delete expense
-
-### Reports
-
-* `GET /api/reports` - Get analytics data
-
-### Auth
-
-* `GET /api/auth/callback` - OAuth callback
-
-## Database Schema
-
-### Expense Model
-
-```typescript
-{
-  userId: string          // Supabase user ID
-  amount: number          // Expense amount
-  category: string        // Category ID
-  date: Date              // Expense date
-  note: string            // Description
-  createdAt: Date         // Auto-generated
-  updatedAt: Date         // Auto-generated
-}
-```
-
-## Key Features Implementation
-
-### 1. Modular Architecture
-
-* Separated concerns with clear folder structure
-* Reusable components and utilities
-* Type-safe with TypeScript throughout
-
-### 2. SEO Optimized
-
-* Server-side rendering with Next.js 14
-* Metadata API for dynamic meta tags
-* Semantic HTML structure
-* Optimized images and assets
-
-### 3. Responsive Design
-
-* Mobile-first approach
-* Breakpoints for tablet and desktop
-* Touch-friendly UI elements
-* Collapsible sidebar on mobile
-
-### 4. Error Handling
-
-* Client-side validation with Zod
-* Server-side validation
-* User-friendly error messages
-* Toast notifications for feedback
-
-### 5. Performance
-
-* MongoDB indexing on userId and date
-* Optimized queries with lean()
-* React Server Components where possible
-* Lazy loading for charts
-
-## Deployment
-
-### Vercel (Recommended)
-
-1. Push code to GitHub
-2. Import project in Vercel
-3. Add environment variables
-4. Deploy
-
-### Manual Deployment
+Populates 1000 realistic transactions across 3 months:
 
 ```bash
-npm run build
-npm start
-```
-
-## Future Enhancements
-
-* [ ] Export reports to PDF/Excel
-* [ ] Recurring expenses
-* [ ] Budget goals and alerts
-* [ ] Multi-currency support
-* [ ] Receipt upload
-* [ ] Dark mode
-* [ ] Email notifications
-* [ ] Expense sharing
-
-## License
-
-MIT
-
-## Support
-
-For issues and questions, please create an issue in the repository.
-
+npm run seed -- --userId <your-user-id>
 ```
 
 ---
 
+## How It Meets the Requirements
+
+### 1. Dashboard Overview
+- **Summary cards**: Balance, Income, Spent, Transaction count — each with delta vs previous period
+- **Period switcher**: Day / Week / Month — all cards and charts update accordingly
+- **Time-based chart**: Area chart (month) or Bar chart (day/week) showing spend over time
+- **Category chart**: Color-coded breakdown with progress bars scoped to the selected period
+
+### 2. Transactions Section
+- Paginated list (25 per page) with date, amount, category, and income/expense type badges
+- Filter by category, type, date range, and keyword search
+- Sort by date or amount (ascending/descending)
+- Add / Edit / Delete (Admin role only)
+
+### 3. Role-Based UI
+Toggle between **Admin** and **Viewer** using the buttons in the header. No login required to switch — it's a frontend simulation.
+
+| Action | Admin | Viewer |
+|--------|-------|--------|
+| View all data | Yes | Yes |
+| Add transaction | Yes | No |
+| Edit transaction | Yes | No |
+| Delete transaction | Yes | No |
+| Category filter (income) | Disabled | Disabled |
+
+Role is persisted in `localStorage` across sessions.
+
+### 4. Insights Section
+- Top spending category (amount + % of total)
+- Most frequent category (by transaction count)
+- Month-over-month spending comparison (% change with trend indicator)
+- Average daily spend for the current month
+- Full category breakdown table with rankings and progress bars
+- Last 6 months trend chart
+
+### 5. State Management
+All state lives in `TransactionContext` (React Context API):
+- Transactions list with server-side pagination
+- Active filters (category, type, date range, search)
+- Pagination state
+- Reports data (stats, category breakdown, monthly breakdown)
+- Dashboard period (Day/Week/Month) with per-period cache
+- Selected role in `RoleContext` with localStorage persistence
+
+Mutations (add/update/delete) invalidate the dashboard cache and re-fetch fresh data automatically.
+
+---
+
+## Technical Approach
+
+### Performance at Scale
+- **Server-side pagination** — constant 25 rows in memory regardless of dataset size
+- **MongoDB compound indexes** on `(userId, date)`, `(userId, type, date)`, `(userId, category, date)` for fast filtered queries
+- **`$facet` aggregation** — single DB round-trip returns stats, categories, and time-series together
+- **Dashboard cache** — period data cached in a `useRef` map; switching Day→Week→Month is instant after first load; cache invalidated on any mutation
+
+### Tab Navigation
+Tab switching is fully client-side using `pushState` + `popstate` — no server round-trips, no RSC fetches. All four sections (Dashboard, Expenses, Reports, Insights) are mounted once in the shared layout and shown/hidden with CSS.
+
+### Auth
+Supabase handles authentication. Route protection is done in `proxy.ts` (Next.js 16 middleware equivalent) — a single edge-runtime check before any page renders.
+
+---
+
+## Tech Stack
+
+| Layer | Choice |
+|-------|--------|
+| Framework | Next.js 16 (App Router) |
+| Language | TypeScript |
+| Styling | Tailwind CSS |
+| Database | MongoDB + Mongoose |
+| Auth | Supabase |
+| Charts | Recharts |
+| Icons | Lucide React |
+| State | React Context API |
+| Notifications | Sonner |
+
+---
+
+## Project Structure
+
+```
+src/
+  app/
+    (auth)/           # Login, signup pages
+    (app)/            # Shared shell: Header + Sidebar + providers
+  components/
+    dashboard/        # DashboardContent, charts
+    expenses/         # ExpenseList, ExpenseFilters, ExpenseModal
+    reports/          # ReportsContent, CategoryChart, MonthlyChart
+    insights/         # InsightsContent
+    layout/           # Header, Sidebar
+  context/            # TransactionContext, RoleContext
+  hooks/              # useClientPath
+  lib/                # MongoDB models + indexes, Supabase clients
+  types/              # Expense, Category interfaces
+  constants/          # Category definitions with Lucide icons
 ```
