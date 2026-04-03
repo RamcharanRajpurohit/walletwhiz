@@ -59,6 +59,18 @@ function CustomSelect({ value, onChange, options, placeholder }: CustomSelectPro
 export default function ExpenseFilters() {
   const { filters, setFilters } = useTransactions()
   const [categoryOpen, setCategoryOpen] = useState(false)
+  const [searchInput, setSearchInput] = useState(filters.search || '')
+  const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const handleSearchChange = (val: string) => {
+    setSearchInput(val)
+    if (searchTimer.current) clearTimeout(searchTimer.current)
+    searchTimer.current = setTimeout(() => {
+      if (val.length === 0 || val.length >= 2) {
+        setFilters({ ...filters, search: val })
+      }
+    }, 300)
+  }
   const categoryRef = useRef<HTMLDivElement>(null)
   useOutsideClick(categoryRef, () => setCategoryOpen(false))
 
@@ -74,8 +86,8 @@ export default function ExpenseFilters() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input
               type="text"
-              value={filters.search || ''}
-              onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+              value={searchInput}
+              onChange={(e) => handleSearchChange(e.target.value)}
               placeholder="Search notes..."
               className="w-full pl-9 pr-4 py-2.5 border-2 border-yellow-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-200 text-sm"
             />
@@ -171,7 +183,7 @@ export default function ExpenseFilters() {
 
       {(filters.search || filters.category || filters.startDate || filters.endDate || filters.type) && (
         <button
-          onClick={() => setFilters({})}
+          onClick={() => { setFilters({}); setSearchInput('') }}
           className="mt-4 text-sm text-rose-500 hover:text-rose-600 font-medium"
         >
           Clear all filters

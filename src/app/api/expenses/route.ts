@@ -9,7 +9,7 @@ interface MongoQuery {
   userId: string
   category?: string
   type?: string
-  $text?: { $search: string }
+  note?: { $regex: string; $options: string }
   date?: { $gte?: Date; $lte?: Date }
 }
 
@@ -41,8 +41,7 @@ export async function GET(request: NextRequest) {
     if (category) query.category = category
     if (type) query.type = type
     if (search) {
-      // Use MongoDB text index for full-text search
-      query.$text = { $search: search }
+      query.note = { $regex: search, $options: 'i' }
     }
     if (startDate || endDate) {
       query.date = {}
