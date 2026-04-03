@@ -4,14 +4,13 @@ import { Toaster } from 'sonner'
 import { RoleProvider } from '@/context/RoleContext'
 import { ThemeProvider } from '@/context/ThemeContext'
 export const metadata: Metadata = {
-  title: 'Expense Tracker - Manage Your Personal Finances',
-  description: 'Track your daily expenses, categorize spending, and gain insights into your financial habits with our easy-to-use expense tracker.',
-  keywords: 'expense tracker, personal finance, budget, money management',
-  authors: [{ name: 'Expense Tracker Team' }],
-  openGraph: {
-    title: 'Expense Tracker - Manage Your Personal Finances',
-    description: 'Track and manage your expenses effortlessly',
-    type: 'website',
+  title: 'WalletWhiz - Personal Finance Tracker',
+  description: 'Track your daily expenses, categorize spending, and gain insights into your financial habits.',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'WalletWhiz',
   },
 }
 
@@ -23,6 +22,13 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <meta name="application-name" content="WalletWhiz" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="WalletWhiz" />
+        <meta name="theme-color" content="#f59e0b" />
+        <link rel="manifest" href="/manifest.json" />
         {/* Runs before React hydrates — prevents theme flash */}
         <script dangerouslySetInnerHTML={{ __html: `
           (function() {
