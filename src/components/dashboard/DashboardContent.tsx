@@ -80,7 +80,7 @@ export default function DashboardContent() {
                 <DollarSign className={`h-4 w-4 ${data.stats.balance >= 0 ? 'text-green-600' : 'text-rose-600'}`} />
               </div>
             </div>
-            <p className={`text-2xl font-bold ${data.stats.balance >= 0 ? 'text-green-700' : 'text-rose-700'}`}>
+            <p className={`text-lg font-bold leading-tight break-all ${data.stats.balance >= 0 ? 'text-green-700' : 'text-rose-700'}`}>
               {formatCurrency(data.stats.balance)}
             </p>
           </div>
@@ -93,7 +93,7 @@ export default function DashboardContent() {
                 <ArrowUpCircle className="h-4 w-4 text-green-600" />
               </div>
             </div>
-            <p className="text-2xl font-bold text-gray-900">{formatCurrency(data.stats.income)}</p>
+            <p className="text-lg font-bold text-gray-900 leading-tight break-all">{formatCurrency(data.stats.income)}</p>
             <Delta current={data.stats.income} prev={data.prev.income} />
           </div>
 
@@ -105,7 +105,7 @@ export default function DashboardContent() {
                 <ArrowDownCircle className="h-4 w-4 text-rose-600" />
               </div>
             </div>
-            <p className="text-2xl font-bold text-gray-900">{formatCurrency(data.stats.spent)}</p>
+            <p className="text-lg font-bold text-gray-900 leading-tight break-all">{formatCurrency(data.stats.spent)}</p>
             <Delta current={data.stats.spent} prev={data.prev.spent} inverse />
           </div>
 
@@ -117,7 +117,7 @@ export default function DashboardContent() {
                 <Receipt className="h-4 w-4 text-purple-600" />
               </div>
             </div>
-            <p className="text-2xl font-bold text-gray-900">{data.stats.txCount}</p>
+            <p className="text-lg font-bold text-gray-900 leading-tight">{data.stats.txCount}</p>
             <span className="text-xs text-gray-400">avg {formatCurrency(data.stats.avgExpense)}</span>
           </div>
         </div>
