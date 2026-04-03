@@ -13,14 +13,15 @@ import { useTransactions } from '@/context/TransactionContext'
 export default function ExpenseList() {
   const { transactions, pagination, loadingTransactions, deleteTransaction, goToPage } = useTransactions()
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null)
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const [sortBy, setSortBy] = useState<'date' | 'amount'>('date')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
   const { role } = useRole()
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this transaction?')) return
     const ok = await deleteTransaction(id)
     if (ok) toast.success('Transaction deleted')
+    setConfirmDeleteId(null)
   }
 
   const getCategoryInfo = (categoryId: string) =>
@@ -148,18 +149,37 @@ export default function ExpenseList() {
                   </p>
                   {role === 'admin' && (
                     <div className="flex items-center gap-0.5">
-                      <button
-                        onClick={() => setEditingExpense(expense)}
-                        className="p-1 text-yellow-600 hover:bg-yellow-100 rounded-lg transition-colors"
-                      >
-                        <Edit2 className="h-3 w-3" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(expense._id!)}
-                        className="p-1 text-rose-600 hover:bg-rose-100 rounded-lg transition-colors"
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </button>
+                      {confirmDeleteId === expense._id ? (
+                        <>
+                          <button
+                            onClick={() => handleDelete(expense._id!)}
+                            className="px-1.5 py-0.5 text-[10px] font-semibold bg-rose-500 text-white rounded-md"
+                          >
+                            Yes
+                          </button>
+                          <button
+                            onClick={() => setConfirmDeleteId(null)}
+                            className="px-1.5 py-0.5 text-[10px] font-semibold bg-gray-200 text-gray-600 rounded-md"
+                          >
+                            No
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => setEditingExpense(expense)}
+                            className="p-1 text-yellow-600 hover:bg-yellow-100 rounded-lg transition-colors"
+                          >
+                            <Edit2 className="h-3 w-3" />
+                          </button>
+                          <button
+                            onClick={() => setConfirmDeleteId(expense._id!)}
+                            className="p-1 text-rose-600 hover:bg-rose-100 rounded-lg transition-colors"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </button>
+                        </>
+                      )}
                     </div>
                   )}
                 </div>
