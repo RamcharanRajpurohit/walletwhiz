@@ -87,7 +87,7 @@ export default function ExpenseList() {
     <>
       <div className="bg-white/90 backdrop-blur-md border-2 border-yellow-200/50 rounded-2xl p-6 shadow-lg">
         {/* Header */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
           <div className="flex items-center space-x-2 text-sm">
             <span className="text-gray-500 font-medium">Sort:</span>
             <button

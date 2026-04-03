@@ -125,18 +125,18 @@ export default function InsightsContent() {
             {sortedCategories.map((item, index) => {
               const cat = getCategoryInfo(item.category)
               return (
-                <div key={item.category} className="flex items-center space-x-4">
-                  <span className="text-sm font-bold text-gray-400 w-5">#{index + 1}</span>
+                <div key={item.category} className="flex items-center gap-3">
+                  <span className="text-sm font-bold text-gray-400 shrink-0">#{index + 1}</span>
                   <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: `${cat.color}20` }}>
                     <cat.icon className="h-4 w-4" style={{ color: cat.color }} />
                   </div>
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-semibold text-gray-900">{cat.name}</span>
-                      <div className="flex items-center space-x-3">
-                        <span className="text-xs text-gray-400">{item.count} txns</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <span className="text-sm font-semibold text-gray-900 truncate">{cat.name}</span>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className="text-xs text-gray-400 hidden sm:inline">{item.count} txns</span>
                         <span className="text-sm font-bold text-gray-900">{formatCurrency(item.total)}</span>
-                        <span className="text-xs text-gray-500 w-10 text-right">{item.percentage.toFixed(1)}%</span>
+                        <span className="text-xs text-gray-500">{item.percentage.toFixed(1)}%</span>
                       </div>
                     </div>
                     <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
@@ -165,8 +165,8 @@ export default function InsightsContent() {
               const widthPct = maxTotal > 0 ? (item.total / maxTotal) * 100 : 0
               const label = new Date(item.month + '-01').toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })
               return (
-                <div key={item.month} className="flex items-center space-x-4">
-                  <span className="text-sm text-gray-600 w-32 shrink-0">{label}</span>
+                <div key={item.month} className="flex items-center gap-3">
+                  <span className="text-xs text-gray-600 w-20 sm:w-28 shrink-0 truncate">{label}</span>
                   <div className="flex-1 h-8 bg-gray-100 rounded-lg overflow-hidden">
                     <div
                       className="h-full rounded-lg transition-all duration-500"
@@ -177,7 +177,7 @@ export default function InsightsContent() {
                       }}
                     />
                   </div>
-                  <div className="text-right w-28 shrink-0">
+                  <div className="text-right shrink-0">
                     <p className="text-sm font-bold text-gray-900">{formatCurrency(item.total)}</p>
                     <p className="text-xs text-gray-400">{item.count} txns</p>
                   </div>
