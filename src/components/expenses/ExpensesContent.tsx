@@ -12,7 +12,7 @@ export default function ExpensesContent() {
   const { role } = useRole()
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 overflow-x-hidden">
       <div className="flex justify-end">
         {role === 'admin' && (
           <button

@@ -31,24 +31,35 @@ export default function BottomNav() {
   return (
     <>
       {/* Bottom nav bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t-2 border-yellow-200/50 pb-safe">
-        <div className="flex items-center justify-around px-2 py-2">
+      <nav
+        className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t-2"
+        style={{
+          backgroundColor: 'var(--surface-card)',
+          borderColor: 'var(--border-col)',
+          backdropFilter: 'blur(12px)',
+        }}
+      >
+        <div className="flex items-center justify-around px-1 py-1">
           {tabs.map(({ href, icon: Icon, label }) => {
             const active = pathname === href || (!pathname && href === '/dashboard')
             return (
               <button
                 key={href}
                 onClick={() => navigateTo(href)}
-                className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all duration-200"
+                className="flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition-all duration-200"
               >
                 <Icon
-                  className={`h-6 w-6 transition-colors ${active ? 'text-rose-500' : 'text-gray-400'}`}
+                  className={`h-5 w-5 transition-colors ${active ? 'text-rose-500' : ''}`}
+                  style={!active ? { color: 'var(--text-muted)' } : undefined}
                   strokeWidth={active ? 2.5 : 1.8}
                 />
-                <span className={`text-[10px] font-medium transition-colors ${active ? 'text-rose-500' : 'text-gray-400'}`}>
+                <span
+                  className={`text-[10px] font-medium transition-colors ${active ? 'text-rose-500' : ''}`}
+                  style={!active ? { color: 'var(--text-muted)' } : undefined}
+                >
                   {label}
                 </span>
-                {active && <span className="w-1 h-1 rounded-full bg-rose-400 mt-0.5" />}
+                {active && <span className="w-1 h-1 rounded-full bg-rose-400" />}
               </button>
             )
           })}
@@ -56,10 +67,10 @@ export default function BottomNav() {
           {/* Settings tab */}
           <button
             onClick={() => setSettingsOpen(true)}
-            className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all duration-200"
+            className="flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition-all duration-200"
           >
-            <Settings className="h-6 w-6 text-gray-400" strokeWidth={1.8} />
-            <span className="text-[10px] font-medium text-gray-400">More</span>
+            <Settings className="h-5 w-5" style={{ color: 'var(--text-muted)' }} strokeWidth={1.8} />
+            <span className="text-[10px] font-medium" style={{ color: 'var(--text-muted)' }}>More</span>
           </button>
         </div>
       </nav>
@@ -67,28 +78,31 @@ export default function BottomNav() {
       {/* Settings sheet overlay */}
       {settingsOpen && (
         <div className="md:hidden fixed inset-0 z-[60] flex flex-col justify-end">
-          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/50" onClick={() => setSettingsOpen(false)} />
           <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-            onClick={() => setSettingsOpen(false)}
-          />
-          {/* Sheet */}
-          <div className="relative bg-white rounded-t-3xl p-6 space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between mb-1">
-              <h3 className="text-base font-bold text-gray-900">Settings</h3>
-              <button onClick={() => setSettingsOpen(false)} className="p-1.5 rounded-lg hover:bg-gray-100">
-                <X className="h-5 w-5 text-gray-500" />
+            className="relative rounded-t-3xl p-6 space-y-4 shadow-2xl"
+            style={{ backgroundColor: 'var(--surface-card)', borderTop: '2px solid var(--border-col)' }}
+          >
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-bold" style={{ color: 'var(--text-base)' }}>Settings</h3>
+              <button
+                onClick={() => setSettingsOpen(false)}
+                className="p-1.5 rounded-lg"
+                style={{ backgroundColor: 'var(--surface-muted)' }}
+              >
+                <X className="h-5 w-5" style={{ color: 'var(--text-soft)' }} />
               </button>
             </div>
 
             {/* Theme */}
-            <div className="flex items-center justify-between py-2">
-              <span className="text-sm font-medium text-gray-700">
+            <div className="flex items-center justify-between py-1">
+              <span className="text-sm font-medium" style={{ color: 'var(--text-soft)' }}>
                 {theme === 'dark' ? 'Dark mode' : 'Light mode'}
               </span>
               <button
                 onClick={toggleTheme}
-                className="p-2 rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors"
+                className="p-2 rounded-xl transition-colors"
+                style={{ backgroundColor: 'var(--surface-muted)' }}
               >
                 {theme === 'dark'
                   ? <Sun className="h-5 w-5 text-yellow-400" />
@@ -99,15 +113,16 @@ export default function BottomNav() {
 
             {/* Role */}
             <div>
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Role</p>
+              <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>Role</p>
               <div className="flex gap-2">
                 <button
                   onClick={() => { setRole('admin'); toast.success('Switched to Admin mode') }}
                   className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-all ${
                     role === 'admin'
                       ? 'bg-gradient-to-r from-yellow-400 to-rose-400 text-white shadow-sm'
-                      : 'bg-gray-100 text-gray-500'
+                      : ''
                   }`}
+                  style={role !== 'admin' ? { backgroundColor: 'var(--surface-muted)', color: 'var(--text-soft)' } : undefined}
                 >
                   <ShieldCheck className="h-4 w-4" />
                   Admin
@@ -117,8 +132,9 @@ export default function BottomNav() {
                   className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-all ${
                     role === 'viewer'
                       ? 'bg-gradient-to-r from-blue-400 to-purple-400 text-white shadow-sm'
-                      : 'bg-gray-100 text-gray-500'
+                      : ''
                   }`}
+                  style={role !== 'viewer' ? { backgroundColor: 'var(--surface-muted)', color: 'var(--text-soft)' } : undefined}
                 >
                   <Eye className="h-4 w-4" />
                   Viewer

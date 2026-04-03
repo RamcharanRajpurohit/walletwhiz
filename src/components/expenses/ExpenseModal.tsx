@@ -77,8 +77,8 @@ export default function ExpenseModal({ expense, onClose, onSuccess }: ExpenseMod
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
+    <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center p-0 sm:p-4 z-50">
+      <div className="bg-white rounded-t-2xl sm:rounded-2xl max-w-md w-full p-4 sm:p-6 shadow-2xl max-h-[92vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-gray-900">
             {expense?._id ? 'Edit Transaction' : 'Add Transaction'}
@@ -154,7 +154,7 @@ export default function ExpenseModal({ expense, onClose, onSuccess }: ExpenseMod
               </button>
 
               {categoryOpen && (
-                <div className="absolute z-50 w-full mt-1 bg-white border-2 border-yellow-200 rounded-xl shadow-lg overflow-hidden">
+                <div className="absolute z-50 w-full mt-1 bg-white border-2 border-yellow-200 rounded-xl shadow-lg overflow-y-auto max-h-48">
                   {DEFAULT_CATEGORIES.map(cat => (
                     <button
                       key={cat.id}

@@ -120,47 +120,45 @@ export default function ExpenseList() {
             return (
               <div
                 key={expense._id}
-                className="flex items-center justify-between p-4 bg-gradient-to-r from-yellow-50 to-rose-50 rounded-xl border border-yellow-200 hover:shadow-md transition-all duration-200"
+                className="flex items-center p-4 gap-3 bg-gradient-to-r from-yellow-50 to-rose-50 rounded-xl border border-yellow-200 hover:shadow-md transition-all duration-200"
               >
-                <div className="flex items-center space-x-4 flex-1 min-w-0">
-                  <div
-                    className="w-11 h-11 shrink-0 rounded-xl flex items-center justify-center"
-                    style={{ backgroundColor: `${category.color}20` }}
-                  >
-                    <category.icon className="h-5 w-5" style={{ color: category.color }} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-900 truncate">{expense.note}</p>
-                    <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5">
-                      <span className="text-xs text-gray-500">{category.name}</span>
-                      <span className="text-xs text-gray-300">•</span>
-                      <span className="text-xs text-gray-500">{formatDate(expense.date)}</span>
-                      <span className={`flex items-center gap-0.5 text-xs font-medium px-1.5 py-0.5 rounded-full ${
-                        isIncome ? 'bg-green-100 text-green-700' : 'bg-rose-100 text-rose-700'
-                      }`}>
-                        {isIncome ? <ArrowUpCircle className="h-3 w-3" /> : <ArrowDownCircle className="h-3 w-3" />}
-                        {isIncome ? 'Income' : 'Expense'}
-                      </span>
-                    </div>
+                <div
+                  className="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center"
+                  style={{ backgroundColor: `${category.color}20` }}
+                >
+                  <category.icon className="h-4 w-4" style={{ color: category.color }} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-gray-900 truncate text-sm">{expense.note}</p>
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5">
+                    <span className="text-xs text-gray-500 truncate max-w-[80px]">{category.name}</span>
+                    <span className="text-xs text-gray-300">•</span>
+                    <span className="text-xs text-gray-500">{formatDate(expense.date)}</span>
+                    <span className={`flex items-center gap-0.5 text-xs font-medium px-1.5 py-0.5 rounded-full ${
+                      isIncome ? 'bg-green-100 text-green-700' : 'bg-rose-100 text-rose-700'
+                    }`}>
+                      {isIncome ? <ArrowUpCircle className="h-3 w-3" /> : <ArrowDownCircle className="h-3 w-3" />}
+                      {isIncome ? 'Income' : 'Expense'}
+                    </span>
                   </div>
                 </div>
-                <div className="flex items-center space-x-3 shrink-0">
-                  <p className={`text-base font-bold whitespace-nowrap ${isIncome ? 'text-green-600' : 'text-rose-600'}`}>
+                <div className="flex flex-col items-end gap-1 shrink-0 ml-2">
+                  <p className={`text-sm font-bold whitespace-nowrap ${isIncome ? 'text-green-600' : 'text-rose-600'}`}>
                     {isIncome ? '+' : '-'}{formatCurrency(expense.amount)}
                   </p>
                   {role === 'admin' && (
-                    <div className="flex items-center space-x-1">
+                    <div className="flex items-center gap-0.5">
                       <button
                         onClick={() => setEditingExpense(expense)}
-                        className="p-1.5 text-yellow-600 hover:bg-yellow-100 rounded-lg transition-colors"
+                        className="p-1 text-yellow-600 hover:bg-yellow-100 rounded-lg transition-colors"
                       >
-                        <Edit2 className="h-4 w-4" />
+                        <Edit2 className="h-3 w-3" />
                       </button>
                       <button
                         onClick={() => handleDelete(expense._id!)}
-                        className="p-1.5 text-rose-600 hover:bg-rose-100 rounded-lg transition-colors"
+                        className="p-1 text-rose-600 hover:bg-rose-100 rounded-lg transition-colors"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-3 w-3" />
                       </button>
                     </div>
                   )}

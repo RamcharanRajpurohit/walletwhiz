@@ -41,7 +41,7 @@ export default function InsightsContent() {
   const sortedMonths = [...monthlyBreakdown].sort((a, b) => b.month.localeCompare(a.month)).slice(0, 6)
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 overflow-x-hidden">
       {/* Insight Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-white/90 backdrop-blur-md border-2 border-yellow-200/50 rounded-2xl p-6 shadow-lg">
