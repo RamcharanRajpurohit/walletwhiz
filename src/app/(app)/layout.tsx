@@ -15,7 +15,7 @@ export default function AppLayout({ children: _ }: { children: React.ReactNode }
 
   return (
     <TransactionProvider>
-      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-rose-50">
+      <div className="min-h-screen">
         <Header />
         <div className="flex">
           <Sidebar />
