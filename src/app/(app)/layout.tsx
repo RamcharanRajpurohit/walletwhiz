@@ -17,7 +17,7 @@ export default function AppLayout({ children: _ }: { children: React.ReactNode }
     <TransactionProvider>
       <div className="min-h-screen bg-white">
         <Header />
-        <div className="flex">
+        <div className="flex pt-16">
           <Sidebar />
           <main className="flex-1 p-4 pb-24 md:pb-8 md:p-8 md:ml-64 overflow-x-hidden min-w-0">
             <div className={!pathname || pathname === '/dashboard' ? '' : 'hidden'}><DashboardContent /></div>

@@ -32,7 +32,7 @@ body {
   transition: background-color 0.2s, color 0.2s;
 }
 .dark body {
-  background-color: #000000;
+  background-color: #111111;
 }
 
 /* ── Dark mode Tailwind overrides ─────────────────────────────── */
