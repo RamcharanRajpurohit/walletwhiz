@@ -27,13 +27,12 @@
 }
 
 body {
-  background-color: var(--surface);
-  background-image: linear-gradient(to bottom right, #fefce8, #ffffff, #fff1f2);
+  background-color: #ffffff;
   color: var(--text-base);
   transition: background-color 0.2s, color 0.2s;
 }
 .dark body {
-  background-image: none;
+  background-color: #000000;
 }
 
 /* ── Dark mode Tailwind overrides ─────────────────────────────── */

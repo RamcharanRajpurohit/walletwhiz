@@ -15,7 +15,7 @@ export default function AppLayout({ children: _ }: { children: React.ReactNode }
 
   return (
     <TransactionProvider>
-      <div className="min-h-screen">
+      <div className="min-h-screen bg-white">
         <Header />
         <div className="flex">
           <Sidebar />
