@@ -192,38 +192,62 @@ export default function ExpenseList() {
 
         {/* Pagination controls */}
         {totalPages > 1 && (
-          <div className="mt-6 flex items-center justify-center space-x-1 border-t border-[var(--paper-border)] pt-4">
-            <button
-              onClick={() => goToPage(page - 1)}
-              disabled={page === 1}
-              className="rounded-full p-2 text-[var(--paper-text-soft)] transition-colors hover:bg-[rgba(84,63,39,0.08)] disabled:cursor-not-allowed disabled:opacity-30"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
+          <div className="mt-6 border-t border-[var(--paper-border)] pt-4">
+            {/* Mobile: simple prev/next */}
+            <div className="flex items-center justify-between md:hidden">
+              <button
+                onClick={() => goToPage(page - 1)}
+                disabled={page === 1}
+                className="rounded-full p-2 text-[var(--paper-text-soft)] transition-colors hover:bg-[rgba(84,63,39,0.08)] disabled:cursor-not-allowed disabled:opacity-30"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              <span className="text-sm font-medium text-[var(--paper-text-soft)]">
+                Page {page} of {totalPages}
+              </span>
+              <button
+                onClick={() => goToPage(page + 1)}
+                disabled={page === totalPages}
+                className="rounded-full p-2 text-[var(--paper-text-soft)] transition-colors hover:bg-[rgba(84,63,39,0.08)] disabled:cursor-not-allowed disabled:opacity-30"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            </div>
 
-            {pageNumbers().map((p, i) =>
-              p === '...'
-                ? <span key={`ellipsis-${i}`} className="px-2 text-sm text-[var(--paper-muted)]">…</span>
-                : <button
-                    key={p}
-                    onClick={() => goToPage(p as number)}
-                    className={`min-w-[36px] h-9 px-2 rounded-full text-sm font-medium transition-colors ${
-                      p === page
-                        ? 'bg-[var(--surface-inverse)] text-[var(--surface)] shadow-sm'
-                        : 'text-[var(--paper-text-soft)] hover:bg-[rgba(84,63,39,0.08)]'
-                    }`}
-                  >
-                    {p}
-                  </button>
-            )}
+            {/* Desktop: full page numbers */}
+            <div className="hidden md:flex items-center justify-center space-x-1">
+              <button
+                onClick={() => goToPage(page - 1)}
+                disabled={page === 1}
+                className="rounded-full p-2 text-[var(--paper-text-soft)] transition-colors hover:bg-[rgba(84,63,39,0.08)] disabled:cursor-not-allowed disabled:opacity-30"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
 
-            <button
-              onClick={() => goToPage(page + 1)}
-              disabled={page === totalPages}
-              className="rounded-full p-2 text-[var(--paper-text-soft)] transition-colors hover:bg-[rgba(84,63,39,0.08)] disabled:cursor-not-allowed disabled:opacity-30"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
+              {pageNumbers().map((p, i) =>
+                p === '...'
+                  ? <span key={`ellipsis-${i}`} className="px-2 text-sm text-[var(--paper-muted)]">…</span>
+                  : <button
+                      key={p}
+                      onClick={() => goToPage(p as number)}
+                      className={`min-w-[36px] h-9 px-2 rounded-full text-sm font-medium transition-colors ${
+                        p === page
+                          ? 'bg-[var(--surface-inverse)] text-[var(--surface)] shadow-sm'
+                          : 'text-[var(--paper-text-soft)] hover:bg-[rgba(84,63,39,0.08)]'
+                      }`}
+                    >
+                      {p}
+                    </button>
+              )}
+
+              <button
+                onClick={() => goToPage(page + 1)}
+                disabled={page === totalPages}
+                className="rounded-full p-2 text-[var(--paper-text-soft)] transition-colors hover:bg-[rgba(84,63,39,0.08)] disabled:cursor-not-allowed disabled:opacity-30"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         )}
       </div>

@@ -435,11 +435,11 @@ export default function DashboardContent() {
         </div>
       </section>
 
-      <section className="paper-card relative rounded-[2rem] p-6">
+      <section className="paper-card relative rounded-[2rem] p-4 md:p-6">
         <div className="flex items-end justify-between gap-4">
           <div>
             <p className="section-kicker">Recent Ledger</p>
-            <h3 className="mt-2 text-2xl text-[var(--paper-text)]">The latest entries, written clearly</h3>
+            <h3 className="mt-2 text-xl md:text-2xl text-[var(--paper-text)]">The latest entries, written clearly</h3>
           </div>
           <span className="editorial-pill hidden md:inline-flex">
             <BadgeIndianRupee className="h-3.5 w-3.5" />
@@ -466,21 +466,19 @@ export default function DashboardContent() {
                   key={tx._id}
                   className="rounded-[1.5rem] border border-[var(--paper-border)] bg-[var(--paper-card-strong)] p-4"
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-start gap-3 min-w-0">
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[1rem]" style={{ backgroundColor: `${cat.color}20` }}>
-                        <cat.icon className="h-4 w-4" style={{ color: cat.color }} />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold text-[var(--paper-text)]">{tx.note}</p>
-                        <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-[var(--paper-text-soft)]">
-                          <span>{cat.name}</span>
-                          <span>•</span>
-                          <span>{formatDate(tx.date)}</span>
-                        </div>
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[1rem]" style={{ backgroundColor: `${cat.color}20` }}>
+                      <cat.icon className="h-4 w-4" style={{ color: cat.color }} />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold text-[var(--paper-text)]">{tx.note}</p>
+                      <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-[var(--paper-text-soft)]">
+                        <span className="truncate">{cat.name}</span>
+                        <span>•</span>
+                        <span className="shrink-0">{formatDate(tx.date)}</span>
                       </div>
                     </div>
-                    <p className={`whitespace-nowrap text-sm font-semibold ${isIncome ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>
+                    <p className={`shrink-0 text-sm font-semibold ${isIncome ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>
                       {isIncome ? '+' : '-'}{formatCurrency(tx.amount)}
                     </p>
                   </div>

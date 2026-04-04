@@ -50,8 +50,8 @@ export default function BottomNav() {
 
   return (
     <>
-      <nav className="md:hidden fixed inset-x-4 bottom-4 z-50">
-        <div className="mobile-dock rounded-[1.8rem] px-2 py-2">
+      <nav className="md:hidden fixed inset-x-0 bottom-0 z-50 pb-[env(safe-area-inset-bottom)]">
+        <div className="mobile-dock rounded-t-[1.8rem] px-2 pt-2 pb-3">
           <div className="grid grid-cols-5 gap-1">
             {visibleTabs.map(({ href, icon: Icon, label }) => {
               const active = pathname === href || (!pathname && href === '/dashboard')
@@ -60,7 +60,7 @@ export default function BottomNav() {
                 <button
                   key={href}
                   onClick={() => navigateTo(href)}
-                  className={`rounded-[1.25rem] px-2 py-2.5 transition-all ${active ? 'bg-[var(--surface-inverse)] text-[var(--surface)] shadow-[0_14px_30px_rgba(21,18,16,0.16)]' : 'text-[var(--text-soft)]'}`}
+                  className={`rounded-[1.25rem] px-2 py-2.5 transition-all ${active ? 'bg-[var(--accent)] text-white shadow-[0_14px_30px_rgba(21,18,16,0.16)]' : 'text-[var(--text-soft)]'}`}
                 >
                   <div className="flex flex-col items-center gap-1.5">
                     <Icon className="h-[18px] w-[18px]" strokeWidth={active ? 2.4 : 1.9} />
@@ -142,7 +142,7 @@ export default function BottomNav() {
                     onClick={() => void handleSwitchRole(role)}
                     className={`rounded-[1.2rem] px-3 py-3 text-sm font-semibold transition-all ${
                       user?.role === role
-                        ? 'bg-[var(--surface-inverse)] text-[var(--surface)] shadow-[0_16px_34px_rgba(21,18,16,0.16)]'
+                        ? 'bg-[var(--accent)] text-white shadow-[0_16px_34px_rgba(21,18,16,0.16)]'
                         : 'border border-[var(--border-col)] bg-[rgba(255,255,255,0.45)] text-[var(--text-soft)]'
                     }`}
                   >
