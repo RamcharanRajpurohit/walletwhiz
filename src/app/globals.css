@@ -510,6 +510,16 @@ input[type="date"] {
   background: rgba(24, 21, 19, 0.94);
 }
 
+.date-input::-webkit-calendar-picker-indicator {
+  opacity: 0.5;
+  cursor: pointer;
+}
+
+.dark .date-input::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 1;
+}
+
 .recharts-cartesian-grid line {
   stroke: rgba(94, 75, 52, 0.12);
 }
