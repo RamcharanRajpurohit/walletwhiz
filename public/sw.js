@@ -1,5 +1,5 @@
-const STATIC_CACHE = 'walletwhiz-static-v2'
-const API_CACHE = 'walletwhiz-api-v2'
+const STATIC_CACHE = 'walletwhiz-static-v3'
+const API_CACHE = 'walletwhiz-api-v3'
 
 const OFFLINE_DB_NAME = 'walletwhiz-offline'
 const OFFLINE_DB_VERSION = 1
@@ -38,6 +38,10 @@ self.addEventListener('fetch', (event) => {
   const requestUrl = new URL(request.url)
 
   if (request.method !== 'GET' || requestUrl.origin !== self.location.origin) {
+    return
+  }
+
+  if (requestUrl.pathname.startsWith('/api/auth/')) {
     return
   }
 
