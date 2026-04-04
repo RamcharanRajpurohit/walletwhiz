@@ -15,26 +15,32 @@ import { canAccessAnalytics, canAccessPath, canReadRecords } from '@/types/auth'
 
 export default function AppLayout({ children: _ }: { children: React.ReactNode }) {
   const pathname = useClientPath()
-  const { user, loading } = useAuth()
+  const { user, loading, authError } = useAuth()
 
   useEffect(() => {
-    if (loading || !pathname) return
+    if (loading || authError || !pathname) return
 
     if (!user) {
-      // Only hard-redirect if there are no auth cookies (truly logged out)
-      // If cookies exist but backend is down, the middleware would have already
-      // redirected to /login — so reaching here means no session at all.
-      const hasSession = document.cookie.includes('walletwhiz_access_token') || document.cookie.includes('walletwhiz_refresh_token')
-      if (!hasSession) {
-        window.location.href = '/login'
-      }
+      window.location.href = '/login'
       return
     }
 
     if (!canAccessPath(user.role, pathname)) {
       navigateTo('/dashboard')
     }
-  }, [loading, pathname, user])
+  }, [loading, authError, pathname, user])
+
+  if (authError && !user) {
+    return (
+      <div className="app-shell flex min-h-screen items-center justify-center px-6">
+        <div className="chrome-card animate-rise-in rounded-[2rem] px-8 py-10 text-center">
+          <p className="mt-5 text-sm uppercase tracking-[0.18em] text-[var(--text-muted)]">Service unavailable</p>
+          <h2 className="mt-3 font-display text-2xl text-[var(--text-base)]">Backend is unreachable</h2>
+          <button onClick={() => window.location.reload()} className="premium-button mt-6 mx-auto">Retry</button>
+        </div>
+      </div>
+    )
+  }
 
   if (loading || !user) {
     return (

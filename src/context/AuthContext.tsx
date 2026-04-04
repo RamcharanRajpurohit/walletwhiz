@@ -6,6 +6,7 @@ import { AuthUser, DEMO_ROLE_ACCOUNTS, UserRole } from '@/types/auth'
 interface AuthContextType {
   user: AuthUser | null
   loading: boolean
+  authError: boolean
   isAuthenticated: boolean
   refresh: () => Promise<void>
   logout: () => Promise<void>
@@ -17,6 +18,7 @@ const AuthContext = createContext<AuthContextType | null>(null)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null)
   const [loading, setLoading] = useState(true)
+  const [authError, setAuthError] = useState(false)
 
   const refresh = useCallback(async () => {
     try {
@@ -28,24 +30,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!res.ok) {
         if (res.status === 401 || res.status === 403) {
           setUser(null)
+        } else {
+          // Backend down or error — set authError so layout doesn't loop
+          setAuthError(true)
         }
         return
       }
 
+      setAuthError(false)
       const data = await res.json()
       setUser(data.user ?? null)
     } catch {
-      // Keep the current user during transient network or backend issues.
+      setAuthError(true)
     }
   }, [])
 
   const logout = useCallback(async () => {
     try {
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-      })
+      await fetch('/api/auth/logout', { method: 'POST' })
     } finally {
       setUser(null)
+      setAuthError(false)
     }
   }, [])
 
@@ -55,31 +60,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: account.email,
-          password: account.password,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: account.email, password: account.password }),
       })
 
       const data = await res.json().catch(() => null)
 
       if (!res.ok) {
-        return {
-          ok: false,
-          message: data?.message ?? 'Failed to switch account',
-        }
+        return { ok: false, message: data?.message ?? 'Failed to switch account' }
       }
 
       setUser(data?.user ?? null)
       return { ok: true }
     } catch {
-      return {
-        ok: false,
-        message: 'Failed to switch account',
-      }
+      return { ok: false, message: 'Failed to switch account' }
     }
   }, [])
 
@@ -96,11 +90,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo<AuthContextType>(() => ({
     user,
     loading,
+    authError,
     isAuthenticated: Boolean(user),
     refresh,
     logout,
     switchRole,
-  }), [loading, refresh, logout, switchRole, user])
+  }), [loading, authError, refresh, logout, switchRole, user])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
