@@ -435,7 +435,7 @@ export default function DashboardContent() {
         </div>
       </section>
 
-      <section className="paper-card relative rounded-[2rem] p-4 md:p-6">
+      <section className="paper-card relative rounded-[2rem] p-4 md:p-6 overflow-hidden">
         <div className="flex items-end justify-between gap-4">
           <div>
             <p className="section-kicker">Recent Ledger</p>

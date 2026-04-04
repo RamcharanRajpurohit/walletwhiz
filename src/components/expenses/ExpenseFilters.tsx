@@ -156,31 +156,37 @@ export default function ExpenseFilters() {
 
         <div>
           <label className="mb-2 block text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-[var(--paper-muted)]">Start Date</label>
-          <input
-            type="date"
-            value={filters.startDate || ''}
-            onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
-            className="w-full rounded-[1.2rem] border border-[var(--paper-border)] bg-[var(--paper-card-strong)] px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-200"
-            style={{
-              color: filters.startDate ? 'var(--paper-text)' : 'var(--paper-text-soft)',
-              WebkitTextFillColor: filters.startDate ? 'var(--paper-text)' : 'var(--paper-text-soft)',
-            }}
-          />
+          <div className="relative">
+            <input
+              type="date"
+              value={filters.startDate || ''}
+              onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
+              className="w-full rounded-[1.2rem] border border-[var(--paper-border)] bg-[var(--paper-card-strong)] px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-200 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+              style={{
+                color: filters.startDate ? 'var(--paper-text)' : 'var(--paper-text-soft)',
+                WebkitTextFillColor: filters.startDate ? 'var(--paper-text)' : 'var(--paper-text-soft)',
+              }}
+            />
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--paper-muted)]" />
+          </div>
         </div>
 
         <div>
           <label className="mb-2 block text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-[var(--paper-muted)]">End Date</label>
-          <input
-            type="date"
-            value={filters.endDate || ''}
-            onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
-            max={new Date().toISOString().split('T')[0]}
-            className="w-full rounded-[1.2rem] border border-[var(--paper-border)] bg-[var(--paper-card-strong)] px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-200"
-            style={{
-              color: filters.endDate ? 'var(--paper-text)' : 'var(--paper-text-soft)',
-              WebkitTextFillColor: filters.endDate ? 'var(--paper-text)' : 'var(--paper-text-soft)',
-            }}
-          />
+          <div className="relative">
+            <input
+              type="date"
+              value={filters.endDate || ''}
+              onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
+              max={new Date().toISOString().split('T')[0]}
+              className="w-full rounded-[1.2rem] border border-[var(--paper-border)] bg-[var(--paper-card-strong)] px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-200 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+              style={{
+                color: filters.endDate ? 'var(--paper-text)' : 'var(--paper-text-soft)',
+                WebkitTextFillColor: filters.endDate ? 'var(--paper-text)' : 'var(--paper-text-soft)',
+              }}
+            />
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--paper-muted)]" />
+          </div>
         </div>
       </div>
 
