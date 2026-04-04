@@ -13,9 +13,6 @@ self.addEventListener('install', (event) => {
     const cache = await caches.open(STATIC_CACHE)
     await cache.addAll([
       '/login',
-      '/manifest.json',
-      '/icon-192.png',
-      '/icon-512.png',
     ])
     await self.skipWaiting()
   })())
