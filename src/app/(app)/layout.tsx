@@ -21,7 +21,13 @@ export default function AppLayout({ children: _ }: { children: React.ReactNode }
     if (loading || !pathname) return
 
     if (!user) {
-      window.location.href = '/login'
+      // Only hard-redirect if there are no auth cookies (truly logged out)
+      // If cookies exist but backend is down, the middleware would have already
+      // redirected to /login — so reaching here means no session at all.
+      const hasSession = document.cookie.includes('walletwhiz_access_token') || document.cookie.includes('walletwhiz_refresh_token')
+      if (!hasSession) {
+        window.location.href = '/login'
+      }
       return
     }
 
