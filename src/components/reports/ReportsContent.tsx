@@ -11,8 +11,8 @@ export default function ReportsContent() {
 
   if (loadingReports) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500"></div>
+      <div className="paper-card relative flex h-80 items-center justify-center rounded-[2rem]">
+        <div className="h-12 w-12 animate-spin rounded-full border-2 border-[var(--border-col)] border-t-[var(--accent)]"></div>
       </div>
     )
   }
@@ -22,36 +22,39 @@ export default function ReportsContent() {
       title: 'Total Spent',
       value: formatCurrency(reportStats?.totalSpent || 0),
       icon: DollarSign,
-      color: 'from-yellow-400 to-yellow-500',
+      iconBg: 'linear-gradient(135deg, #c39166 0%, #9b5a39 100%)',
     },
     {
       title: 'Total Transactions',
       value: reportStats?.expenseCount || 0,
       icon: Receipt,
-      color: 'from-rose-400 to-rose-500',
+      iconBg: 'linear-gradient(135deg, #6d8676 0%, #365045 100%)',
     },
     {
       title: 'Average Expense',
       value: formatCurrency(reportStats?.averageExpense || 0),
       icon: TrendingUp,
-      color: 'from-purple-400 to-purple-500',
+      iconBg: 'linear-gradient(135deg, #8d7c95 0%, #63556f 100%)',
     },
   ]
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {statCards.map((card, index) => (
           <div
             key={index}
-            className="bg-white/90 backdrop-blur-md border-2 border-yellow-200/50 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-200"
+            className="paper-card relative rounded-[2rem] p-6 transition-all duration-200 hover:-translate-y-0.5"
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 mb-1">{card.title}</p>
-                <p className="text-2xl font-bold text-gray-900">{card.value}</p>
+                <p className="mb-2 text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-[var(--paper-muted)]">{card.title}</p>
+                <p className="text-3xl font-semibold text-gray-900">{card.value}</p>
               </div>
-              <div className={`p-3 bg-gradient-to-r ${card.color} rounded-xl`}>
+              <div
+                className="rounded-[1rem] p-3 shadow-[0_16px_32px_rgba(21,18,16,0.12)]"
+                style={{ background: card.iconBg }}
+              >
                 <card.icon className="h-6 w-6 text-white" />
               </div>
             </div>

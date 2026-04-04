@@ -1,113 +1,72 @@
 import { NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase/server'
-import { connectDB } from '@/lib/mongodb/connection'
-import { ExpenseModel } from '@/lib/mongodb/models'
+import { buildBackendUrl, clearAuthCookies, fetchBackendWithSession, setAuthCookies } from '@/lib/backend'
 
 export async function GET() {
   try {
-    const supabase = await createServerClient()
-    const { data: { session } } = await supabase.auth.getSession()
+    const from = new Date()
+    from.setMonth(from.getMonth() - 11)
+    from.setDate(1)
 
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    const params = new URLSearchParams({
+      trend: 'monthly',
+      recentLimit: '5',
+      from: from.toISOString(),
+      to: new Date().toISOString(),
+    })
 
-    await connectDB()
-
-    const userId = session.user.id
-
-    // Single aggregation pipeline — all computation in MongoDB, nothing in Node
-    const [result] = await ExpenseModel.aggregate([
-      { $match: { userId } },
-      {
-        $facet: {
-          // Overall stats split by type
-          stats: [
-            {
-              $group: {
-                _id: '$type',
-                total: { $sum: '$amount' },
-                count: { $sum: 1 },
-              },
-            },
-          ],
-          // Category breakdown for expenses only
-          categoryBreakdown: [
-            { $match: { type: { $in: ['expense', null] } } },
-            {
-              $group: {
-                _id: '$category',
-                total: { $sum: '$amount' },
-                count: { $sum: 1 },
-              },
-            },
-            { $sort: { total: -1 } },
-          ],
-          // Monthly breakdown for expenses only (last 12 months)
-          monthlyBreakdown: [
-            { $match: { type: { $in: ['expense', null] } } },
-            {
-              $group: {
-                _id: {
-                  year: { $year: '$date' },
-                  month: { $month: '$date' },
-                },
-                total: { $sum: '$amount' },
-                count: { $sum: 1 },
-              },
-            },
-            { $sort: { '_id.year': 1, '_id.month': 1 } },
-          ],
-        },
-      },
-    ])
-
-    // Build stats from facet result
-    let totalSpent = 0
-    let totalIncome = 0
-    let expenseCount = 0
-    let expenseOnlyCount = 0
-
-    for (const s of result.stats) {
-      if (s._id === 'income') {
-        totalIncome += s.total
-        expenseCount += s.count
-      } else {
-        // 'expense' or null (legacy records without type)
-        totalSpent += s.total
-        expenseOnlyCount += s.count
-        expenseCount += s.count
+    const result = await fetchBackendWithSession<{
+      data?: {
+        totals?: { totalExpenses?: number; totalIncome?: number; netBalance?: number }
+        categoryTotals?: { category: string; totalAmount: number; count: number }[]
+        trends?: { label: string; expense: number; recordCount: number }[]
       }
+    }>(buildBackendUrl('/dashboard/overview', params))
+
+    if (!result.ok) {
+      const response = NextResponse.json({ message: result.message }, { status: result.status })
+
+      if (result.clearAuth) {
+        clearAuthCookies(response)
+      }
+
+      return response
     }
 
-    // Compute category percentages
-    const categoryBreakdown = result.categoryBreakdown.map((c: { _id: string; total: number; count: number }) => ({
-      category: c._id,
-      total: c.total,
-      count: c.count,
-      percentage: totalSpent > 0 ? (c.total / totalSpent) * 100 : 0,
+    const data = result.payload?.data
+    const totalSpent = data?.totals?.totalExpenses ?? 0
+    const totalIncome = data?.totals?.totalIncome ?? 0
+    const categoryBreakdown = (data?.categoryTotals ?? []).map((item: { category: string; totalAmount: number; count: number }) => ({
+      category: item.category,
+      total: item.totalAmount,
+      count: item.count,
+      percentage: totalSpent > 0 ? (item.totalAmount / totalSpent) * 100 : 0,
+    }))
+    const expenseCount = categoryBreakdown.reduce((sum: number, item: { count: number }) => sum + item.count, 0)
+    const monthlyBreakdown = (data?.trends ?? []).map((item: { label: string; expense: number; recordCount: number }) => ({
+      month: item.label,
+      total: item.expense,
+      count: item.recordCount,
     }))
 
-    // Format monthly breakdown
-    const monthlyBreakdown = result.monthlyBreakdown.map((m: { _id: { year: number; month: number }; total: number; count: number }) => ({
-      month: `${m._id.year}-${String(m._id.month).padStart(2, '0')}`,
-      total: m.total,
-      count: m.count,
-    }))
-
-    return NextResponse.json({
+    const response = NextResponse.json({
       stats: {
         totalSpent,
         totalIncome,
-        totalBalance: totalIncome - totalSpent,
+        totalBalance: data?.totals?.netBalance ?? totalIncome - totalSpent,
         expenseCount,
-        averageExpense: expenseOnlyCount > 0 ? totalSpent / expenseOnlyCount : 0,
+        averageExpense: expenseCount > 0 ? totalSpent / expenseCount : 0,
       },
       categoryBreakdown,
       monthlyBreakdown,
     })
+
+    if (result.refreshedTokens) {
+      setAuthCookies(response, result.refreshedTokens)
+    }
+
+    return response
   } catch (error) {
     console.error('GET /api/reports error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ message: 'Internal server error' }, { status: 500 })
   }
 }

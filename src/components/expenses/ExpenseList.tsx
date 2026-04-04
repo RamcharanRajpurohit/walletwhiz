@@ -7,7 +7,8 @@ import { Expense } from '@/types/expense'
 import { DEFAULT_CATEGORIES } from '@/constants/categories'
 import ExpenseModal from './ExpenseModal'
 import { toast } from 'sonner'
-import { useRole } from '@/context/RoleContext'
+import { useAuth } from '@/context/AuthContext'
+import { canManageRecords } from '@/types/auth'
 import { useTransactions } from '@/context/TransactionContext'
 
 export default function ExpenseList() {
@@ -16,7 +17,8 @@ export default function ExpenseList() {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const [sortBy, setSortBy] = useState<'date' | 'amount'>('date')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
-  const { role } = useRole()
+  const { user } = useAuth()
+  const canEdit = canManageRecords(user?.role ?? null)
 
   const handleDelete = async (id: string) => {
     const ok = await deleteTransaction(id)
@@ -41,7 +43,7 @@ export default function ExpenseList() {
 
   if (loadingTransactions) {
     return (
-      <div className="bg-white/90 backdrop-blur-md border-2 border-yellow-200/50 rounded-2xl p-6 shadow-lg">
+      <div className="paper-card relative rounded-[2rem] p-6">
         <div className="space-y-4">
           {[1, 2, 3, 4, 5].map((i) => (
             <div key={i} className="animate-pulse flex items-center space-x-4 p-4">
@@ -60,10 +62,10 @@ export default function ExpenseList() {
 
   if (transactions.length === 0) {
     return (
-      <div className="bg-white/90 backdrop-blur-md border-2 border-yellow-200/50 rounded-2xl p-12 shadow-lg text-center">
+      <div className="paper-card relative rounded-[2rem] p-12 text-center">
         <p className="text-gray-500 text-lg">No transactions found</p>
         <p className="text-gray-400 mt-2">
-          {role === 'admin' ? 'Add your first transaction to get started!' : 'No transactions to display.'}
+          {canEdit ? 'Add your first transaction to get started!' : 'No transactions to display.'}
         </p>
       </div>
     )
@@ -86,29 +88,29 @@ export default function ExpenseList() {
 
   return (
     <>
-      <div className="bg-white/90 backdrop-blur-md border-2 border-yellow-200/50 rounded-2xl p-6 shadow-lg">
+      <div className="paper-card relative rounded-[2rem] p-6">
         {/* Header */}
         <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
           <div className="flex items-center space-x-2 text-sm">
-            <span className="text-gray-500 font-medium">Sort:</span>
+            <span className="text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-[var(--paper-muted)]">Sort</span>
             <button
               onClick={() => toggleSort('date')}
-              className={`px-3 py-1.5 rounded-lg font-medium transition-colors ${
-                sortBy === 'date' ? 'bg-yellow-100 text-yellow-700' : 'text-gray-500 hover:bg-gray-100'
+              className={`rounded-full px-3 py-1.5 font-medium transition-colors ${
+                sortBy === 'date' ? 'bg-[var(--surface-inverse)] text-[var(--surface)]' : 'text-[var(--paper-text-soft)] hover:bg-[rgba(84,63,39,0.08)]'
               }`}
             >
               Date {sortBy === 'date' ? (sortDir === 'desc' ? '↓' : '↑') : ''}
             </button>
             <button
               onClick={() => toggleSort('amount')}
-              className={`px-3 py-1.5 rounded-lg font-medium transition-colors ${
-                sortBy === 'amount' ? 'bg-yellow-100 text-yellow-700' : 'text-gray-500 hover:bg-gray-100'
+              className={`rounded-full px-3 py-1.5 font-medium transition-colors ${
+                sortBy === 'amount' ? 'bg-[var(--surface-inverse)] text-[var(--surface)]' : 'text-[var(--paper-text-soft)] hover:bg-[rgba(84,63,39,0.08)]'
               }`}
             >
               Amount {sortBy === 'amount' ? (sortDir === 'desc' ? '↓' : '↑') : ''}
             </button>
           </div>
-          <span className="text-sm text-gray-400">
+          <span className="text-sm text-[var(--paper-muted)]">
             {from}–{to} of {total} transactions
           </span>
         </div>
@@ -121,22 +123,22 @@ export default function ExpenseList() {
             return (
               <div
                 key={expense._id}
-                className="flex items-center p-4 gap-3 bg-gradient-to-r from-yellow-50 to-rose-50 rounded-xl border border-yellow-200 hover:shadow-md transition-all duration-200"
+                className="flex items-center gap-3 rounded-[1.6rem] border border-[var(--paper-border)] bg-[var(--paper-card-strong)] p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-[rgba(84,63,39,0.18)] hover:shadow-[0_18px_34px_rgba(53,38,22,0.08)]"
               >
                 <div
-                  className="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center"
+                  className="w-10 h-10 shrink-0 rounded-[1rem] flex items-center justify-center"
                   style={{ backgroundColor: `${category.color}20` }}
                 >
                   <category.icon className="h-4 w-4" style={{ color: category.color }} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-gray-900 truncate text-sm">{expense.note}</p>
+                  <p className="truncate text-sm font-semibold text-[var(--paper-text)]">{expense.note}</p>
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5">
-                    <span className="text-xs text-gray-500 truncate max-w-[80px]">{category.name}</span>
-                    <span className="text-xs text-gray-300">•</span>
-                    <span className="text-xs text-gray-500">{formatDate(expense.date)}</span>
-                    <span className={`flex items-center gap-0.5 text-xs font-medium px-1.5 py-0.5 rounded-full ${
-                      isIncome ? 'bg-green-100 text-green-700' : 'bg-rose-100 text-rose-700'
+                    <span className="max-w-[80px] truncate text-xs text-[var(--paper-text-soft)]">{category.name}</span>
+                    <span className="text-xs text-[var(--paper-muted)]">•</span>
+                    <span className="text-xs text-[var(--paper-text-soft)]">{formatDate(expense.date)}</span>
+                    <span className={`flex items-center gap-0.5 text-xs font-medium px-2 py-0.5 rounded-full ${
+                      isIncome ? 'bg-[rgba(45,106,79,0.12)] text-[var(--success)]' : 'bg-[rgba(147,68,56,0.12)] text-[var(--danger)]'
                     }`}>
                       {isIncome ? <ArrowUpCircle className="h-3 w-3" /> : <ArrowDownCircle className="h-3 w-3" />}
                       {isIncome ? 'Income' : 'Expense'}
@@ -147,19 +149,19 @@ export default function ExpenseList() {
                   <p className={`text-sm font-bold whitespace-nowrap ${isIncome ? 'text-green-600' : 'text-rose-600'}`}>
                     {isIncome ? '+' : '-'}{formatCurrency(expense.amount)}
                   </p>
-                  {role === 'admin' && (
+                  {canEdit && (
                     <div className="flex items-center gap-0.5">
                       {confirmDeleteId === expense._id ? (
                         <>
                           <button
                             onClick={() => handleDelete(expense._id!)}
-                            className="px-1.5 py-0.5 text-[10px] font-semibold bg-rose-500 text-white rounded-md"
+                            className="px-2 py-1 text-[10px] font-semibold bg-[var(--danger)] text-white rounded-full"
                           >
                             Yes
                           </button>
                           <button
                             onClick={() => setConfirmDeleteId(null)}
-                            className="px-1.5 py-0.5 text-[10px] font-semibold bg-gray-200 text-gray-600 rounded-md"
+                            className="px-2 py-1 text-[10px] font-semibold bg-[var(--surface-muted)] text-[var(--text-soft)] rounded-full"
                           >
                             No
                           </button>
@@ -168,13 +170,13 @@ export default function ExpenseList() {
                         <>
                           <button
                             onClick={() => setEditingExpense(expense)}
-                            className="p-1 text-yellow-600 hover:bg-yellow-100 rounded-lg transition-colors"
+                            className="p-1.5 text-yellow-600 hover:bg-yellow-100 rounded-full transition-colors"
                           >
                             <Edit2 className="h-3 w-3" />
                           </button>
                           <button
                             onClick={() => setConfirmDeleteId(expense._id!)}
-                            className="p-1 text-rose-600 hover:bg-rose-100 rounded-lg transition-colors"
+                            className="p-1.5 text-rose-600 hover:bg-rose-100 rounded-full transition-colors"
                           >
                             <Trash2 className="h-3 w-3" />
                           </button>
@@ -190,25 +192,25 @@ export default function ExpenseList() {
 
         {/* Pagination controls */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-center space-x-1 mt-6 pt-4 border-t border-gray-100">
+          <div className="mt-6 flex items-center justify-center space-x-1 border-t border-[var(--paper-border)] pt-4">
             <button
               onClick={() => goToPage(page - 1)}
               disabled={page === 1}
-              className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="rounded-full p-2 text-[var(--paper-text-soft)] transition-colors hover:bg-[rgba(84,63,39,0.08)] disabled:cursor-not-allowed disabled:opacity-30"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
 
             {pageNumbers().map((p, i) =>
               p === '...'
-                ? <span key={`ellipsis-${i}`} className="px-2 text-gray-400 text-sm">…</span>
+                ? <span key={`ellipsis-${i}`} className="px-2 text-sm text-[var(--paper-muted)]">…</span>
                 : <button
                     key={p}
                     onClick={() => goToPage(p as number)}
-                    className={`min-w-[36px] h-9 px-2 rounded-lg text-sm font-medium transition-colors ${
+                    className={`min-w-[36px] h-9 px-2 rounded-full text-sm font-medium transition-colors ${
                       p === page
-                        ? 'bg-gradient-to-r from-yellow-400 to-rose-400 text-white shadow-sm'
-                        : 'text-gray-600 hover:bg-gray-100'
+                        ? 'bg-[var(--surface-inverse)] text-[var(--surface)] shadow-sm'
+                        : 'text-[var(--paper-text-soft)] hover:bg-[rgba(84,63,39,0.08)]'
                     }`}
                   >
                     {p}
@@ -218,7 +220,7 @@ export default function ExpenseList() {
             <button
               onClick={() => goToPage(page + 1)}
               disabled={page === totalPages}
-              className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="rounded-full p-2 text-[var(--paper-text-soft)] transition-colors hover:bg-[rgba(84,63,39,0.08)] disabled:cursor-not-allowed disabled:opacity-30"
             >
               <ChevronRight className="h-4 w-4" />
             </button>

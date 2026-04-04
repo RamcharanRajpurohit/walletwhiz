@@ -1,6 +1,6 @@
 export interface Expense {
   _id?: string
-  userId: string
+  userId?: string
   amount: number
   category: string
   type?: 'income' | 'expense'

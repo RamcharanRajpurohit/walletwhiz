@@ -9,7 +9,7 @@ const features = [
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-red-950 flex">
+    <div className="min-h-screen flex">
 
       {/* Decorative radial glows */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
@@ -25,8 +25,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <div className="hidden lg:flex lg:w-1/2 flex-col justify-between px-16 py-14 relative z-10">
         {/* Logo */}
         <div className="flex items-center space-x-3">
-          <Sun className="h-9 w-9 text-red-400" />
-          <span className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+          <Sun className="h-9 w-9 text-[var(--accent)]" />
+          <span className="text-2xl font-bold bg-gradient-to-r from-[var(--text-base)] to-[var(--text-soft)] bg-clip-text text-transparent">
             WalletWhiz
           </span>
         </div>
@@ -35,15 +35,15 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         <div className="space-y-8">
           <div className="space-y-4">
             <h1 className="text-5xl font-bold leading-tight">
-              <span className="bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[var(--text-base)] via-[var(--text-base)] to-[var(--text-soft)] bg-clip-text text-transparent">
                 Your finances,
               </span>
               <br />
-              <span className="bg-gradient-to-r from-red-400 to-red-300 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[var(--accent)] to-[var(--accent-strong)] bg-clip-text text-transparent">
                 finally clear.
               </span>
             </h1>
-            <p className="text-gray-400 text-lg max-w-sm leading-relaxed">
+            <p className="text-[var(--text-soft)] text-lg max-w-sm leading-relaxed">
               A smart dashboard to track every rupee — where it came from, where it went, and what it means.
             </p>
           </div>
@@ -52,12 +52,12 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <div className="space-y-5">
             {features.map(({ icon: Icon, title, desc }) => (
               <div key={title} className="flex items-start space-x-4 group">
-                <div className="p-2.5 bg-red-900/30 border border-red-900/40 rounded-xl shrink-0 group-hover:bg-red-900/50 transition-colors">
-                  <Icon className="h-4 w-4 text-red-400" />
+                <div className="p-2.5 rounded-xl shrink-0 transition-colors group-hover:brightness-110" style={{ backgroundColor: 'var(--accent-soft)', border: '1px solid var(--border-col)' }}>
+                  <Icon className="h-4 w-4 text-[var(--accent)]" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-gray-200">{title}</p>
-                  <p className="text-sm text-gray-500 mt-0.5">{desc}</p>
+                  <p className="text-sm font-semibold text-[var(--text-base)]">{title}</p>
+                  <p className="text-sm text-[var(--text-soft)] mt-0.5">{desc}</p>
                 </div>
               </div>
             ))}
@@ -71,15 +71,15 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
               { value: '3',     label: 'Months of insights' },
             ].map(s => (
               <div key={s.label}>
-                <p className="text-xl font-bold text-white">{s.value}</p>
-                <p className="text-xs text-gray-500 mt-0.5">{s.label}</p>
+                <p className="text-xl font-bold text-[var(--text-base)]">{s.value}</p>
+                <p className="text-xs text-[var(--text-muted)] mt-0.5">{s.label}</p>
               </div>
             ))}
           </div>
         </div>
 
         {/* Bottom note */}
-        <p className="text-xs text-gray-600">
+        <p className="text-xs text-[var(--text-muted)]">
           Built for the Zorvyn Finance Dashboard assignment.
         </p>
       </div>
@@ -90,18 +90,18 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
           {/* Mobile logo */}
           <div className="flex items-center justify-center space-x-3 mb-8 lg:hidden">
-            <Sun className="h-8 w-8 text-red-400" />
-            <span className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+            <Sun className="h-8 w-8 text-[var(--accent)]" />
+            <span className="text-2xl font-bold bg-gradient-to-r from-[var(--text-base)] to-[var(--text-soft)] bg-clip-text text-transparent">
               WalletWhiz
             </span>
           </div>
 
-          <div className="bg-gradient-to-br from-gray-900 via-red-950/40 to-black border border-red-900/30 rounded-2xl shadow-2xl p-8">
+          <div className="chrome-card rounded-2xl shadow-2xl p-8">
             {children}
           </div>
 
           {/* Demo credentials hint */}
-          <div className="mt-4 flex items-center justify-center space-x-2 text-xs text-gray-600">
+          <div className="mt-4 flex items-center justify-center space-x-2 text-xs text-[var(--text-muted)]">
             <ArrowRight className="h-3 w-3" />
             <span>Demo: test@gmail.com / password</span>
           </div>

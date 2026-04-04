@@ -1,42 +1,94 @@
 'use client'
 
 import { LayoutDashboard, Receipt, BarChart3, Lightbulb } from 'lucide-react'
+import { useAuth } from '@/context/AuthContext'
+import { canAccessAnalytics, canReadRecords } from '@/types/auth'
 import { cn } from '@/utils/cn'
 import { useClientPath, navigateTo } from '@/hooks/useClientPath'
 
 const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Expenses', href: '/expenses', icon: Receipt },
-  { name: 'Reports', href: '/reports', icon: BarChart3 },
-  { name: 'Insights', href: '/insights', icon: Lightbulb },
+  {
+    name: 'Dashboard',
+    href: '/dashboard',
+    icon: LayoutDashboard,
+    caption: 'Balance, velocity, and recent movement',
+  },
+  {
+    name: 'Expenses',
+    href: '/expenses',
+    icon: Receipt,
+    caption: 'The detailed ledger behind the month',
+  },
+  {
+    name: 'Reports',
+    href: '/reports',
+    icon: BarChart3,
+    caption: 'Category exposure and spending cadence',
+  },
+  {
+    name: 'Insights',
+    href: '/insights',
+    icon: Lightbulb,
+    caption: 'Signals worth acting on',
+  },
 ]
 
 export default function Sidebar() {
   const pathname = useClientPath()
+  const { user } = useAuth()
+
+  const items = navigation.filter((item) => {
+    if (item.href === '/dashboard') return true
+    if (item.href === '/expenses') return canReadRecords(user?.role ?? null)
+    return canAccessAnalytics(user?.role ?? null)
+  })
 
   return (
-    <aside className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 md:pt-20">
-      <div className="flex flex-col flex-grow bg-white/90 backdrop-blur-md border-r-2 border-yellow-200/50 px-4 py-8">
-        <nav className="flex-1 space-y-2">
-          {navigation.map((item) => {
+    <aside className="hidden md:block md:fixed md:left-6 md:top-6 md:bottom-6 md:w-[19rem] md:z-10">
+      <div className="ink-card h-full rounded-[2rem] p-6 flex flex-col animate-rise-in">
+        
+        <nav className="mt-8 flex-1 space-y-3">
+          {items.map((item, index) => {
             const isActive = pathname !== null && pathname === item.href
+
             return (
               <button
                 key={item.name}
                 onClick={() => navigateTo(item.href)}
-                className={cn(
-                  'w-full flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200',
-                  isActive
-                    ? 'bg-gradient-to-r from-yellow-400 to-rose-400 text-white shadow-lg'
-                    : 'text-gray-700 hover:bg-yellow-100'
-                )}
+                data-active={isActive}
+                className={cn('nav-slat w-full transition-all duration-200 hover:translate-x-1')}
               >
-                <item.icon className="mr-3 h-5 w-5" />
-                {item.name}
+                <div className="flex items-start gap-4">
+                  <div
+                    className={cn(
+                      'mt-0.5 flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border',
+                      isActive
+                        ? 'border-[var(--rail-icon-border)] bg-[var(--rail-icon-bg-active)] text-[var(--rail-text-active)]'
+                        : 'border-[var(--rail-icon-border)] bg-[var(--rail-icon-bg)] text-[var(--rail-text)]'
+                    )}
+                  >
+                    <item.icon className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0 text-left">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[0.68rem] font-semibold tracking-[0.18em] text-[var(--rail-index)]">
+                        0{index + 1}
+                      </span>
+                      <span className={cn('text-[0.95rem] font-semibold', isActive ? 'text-[var(--rail-text-active)]' : 'text-[var(--rail-text)]')}>
+                        {item.name}
+                      </span>
+                    </div>
+                    <p className="mt-1.5 text-xs leading-5 text-[var(--rail-text-soft)]">
+                      {item.caption}
+                    </p>
+                  </div>
+                </div>
               </button>
             )
           })}
         </nav>
+
+       
       </div>
     </aside>
   )

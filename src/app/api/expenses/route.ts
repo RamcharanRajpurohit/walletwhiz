@@ -1,117 +1,152 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase/server'
-import { connectDB } from '@/lib/mongodb/connection'
-import { ExpenseModel } from '@/lib/mongodb/models'
+import { buildBackendUrl, clearAuthCookies, fetchBackendWithSession, setAuthCookies } from '@/lib/backend'
 
-const PAGE_SIZE = 25
+type BackendRecord = {
+  id: string
+  amount: number
+  category: string
+  type: 'income' | 'expense'
+  occurredAt: string
+  notes?: string
+  createdAt?: string
+  updatedAt?: string
+  createdBy?: { id?: string } | null
+}
 
-interface MongoQuery {
-  userId: string
-  category?: string
-  type?: string
-  note?: { $regex: string; $options: string }
-  date?: { $gte?: Date; $lte?: Date }
+function mapRecordToExpense(record: BackendRecord) {
+  return {
+    _id: record.id,
+    userId: record.createdBy?.id ?? '',
+    amount: record.amount,
+    category: record.category,
+    type: record.type,
+    date: record.occurredAt,
+    note: record.notes ?? '',
+    createdAt: record.createdAt,
+    updatedAt: record.updatedAt,
+  }
+}
+
+function buildFailureResponse(result: { status: number; message: string; clearAuth?: boolean }) {
+  const response = NextResponse.json({ message: result.message }, { status: result.status })
+
+  if (result.clearAuth) {
+    clearAuthCookies(response)
+  }
+
+  return response
 }
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createServerClient()
-    const { data: { session } } = await supabase.auth.getSession()
+    const { searchParams } = new URL(request.url)
+    const limit = searchParams.get('limit')
 
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (limit) {
+      const params = new URLSearchParams({
+        trend: 'monthly',
+        recentLimit: limit,
+      })
+
+      const result = await fetchBackendWithSession<{ data?: { recentActivity?: BackendRecord[] } }>(
+        buildBackendUrl('/dashboard/overview', params)
+      )
+      if (!result.ok) return buildFailureResponse(result)
+
+      const response = NextResponse.json({
+        expenses: (result.payload?.data?.recentActivity ?? []).map(mapRecordToExpense),
+      })
+
+      if (result.refreshedTokens) {
+        setAuthCookies(response, result.refreshedTokens)
+      }
+
+      return response
     }
 
-    await connectDB()
+    const backendParams = new URLSearchParams({
+      page: searchParams.get('page') ?? '1',
+      limit: searchParams.get('pageSize') ?? '25',
+    })
 
-    const { searchParams } = new URL(request.url)
     const category = searchParams.get('category')
     const startDate = searchParams.get('startDate')
     const endDate = searchParams.get('endDate')
     const search = searchParams.get('search')
     const type = searchParams.get('type')
-    // Simple limit mode (for recent transactions widget)
-    const limit = searchParams.get('limit')
-    // Paginated mode
-    const page = parseInt(searchParams.get('page') || '1', 10)
-    const pageSize = parseInt(searchParams.get('pageSize') || String(PAGE_SIZE), 10)
 
-    const query: MongoQuery = { userId: session.user.id }
+    if (category) backendParams.set('category', category)
+    if (startDate) backendParams.set('from', startDate)
+    if (endDate) backendParams.set('to', endDate)
+    if (search) backendParams.set('search', search)
+    if (type) backendParams.set('type', type)
 
-    if (category) query.category = category
-    if (type) query.type = type
-    if (search) {
-      query.note = { $regex: search, $options: 'i' }
-    }
-    if (startDate || endDate) {
-      query.date = {}
-      if (startDate) query.date.$gte = new Date(startDate)
-      if (endDate) query.date.$lte = new Date(endDate)
-    }
+    const result = await fetchBackendWithSession<{
+      data?: {
+        items?: BackendRecord[]
+        pagination?: { page: number; limit: number; total: number; totalPages: number }
+      }
+    }>(buildBackendUrl('/records', backendParams))
+    if (!result.ok) return buildFailureResponse(result)
 
-    // Simple limit mode — used for recent widget, no pagination
-    if (limit) {
-      const expenses = await ExpenseModel
-        .find(query)
-        .sort({ date: -1 })
-        .limit(parseInt(limit, 10))
-        .lean()
-      return NextResponse.json({ expenses })
-    }
+    const items = result.payload?.data?.items ?? []
+    const pagination = result.payload?.data?.pagination
 
-    // Paginated mode — run count and data in parallel
-    const skip = (page - 1) * pageSize
-    const [expenses, total] = await Promise.all([
-      ExpenseModel.find(query).sort({ date: -1 }).skip(skip).limit(pageSize).lean(),
-      ExpenseModel.countDocuments(query),
-    ])
-
-    return NextResponse.json({
-      expenses,
-      pagination: {
-        page,
-        pageSize,
-        total,
-        totalPages: Math.ceil(total / pageSize),
-        hasMore: skip + expenses.length < total,
-      },
+    const response = NextResponse.json({
+      expenses: items.map((item: BackendRecord) => mapRecordToExpense(item)),
+      pagination: pagination
+        ? {
+            page: pagination.page,
+            pageSize: pagination.limit,
+            total: pagination.total,
+            totalPages: pagination.totalPages,
+            hasMore: pagination.page < pagination.totalPages,
+          }
+        : null,
     })
+
+    if (result.refreshedTokens) {
+      setAuthCookies(response, result.refreshedTokens)
+    }
+
+    return response
   } catch (error) {
     console.error('GET /api/expenses error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ message: 'Internal server error' }, { status: 500 })
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createServerClient()
-    const { data: { session } } = await supabase.auth.getSession()
-
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
     const body = await request.json()
-    const { amount, category, type, date, note } = body
-
-    if (!amount || !category || !date || !note) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
-    }
-
-    await connectDB()
-
-    const expense = await ExpenseModel.create({
-      userId: session.user.id,
-      amount: Number(amount),
-      category,
-      type: type || 'expense',
-      date: new Date(date),
-      note,
+    const result = await fetchBackendWithSession<{ data?: BackendRecord }>(buildBackendUrl('/records'), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        amount: body.amount,
+        category: body.category,
+        type: body.type ?? 'expense',
+        occurredAt: body.date,
+        notes: body.note,
+      }),
     })
 
-    return NextResponse.json({ expense }, { status: 201 })
+    if (!result.ok) return buildFailureResponse(result)
+
+    const response = NextResponse.json(
+      { expense: mapRecordToExpense(result.payload?.data as BackendRecord) },
+      { status: 201 }
+    )
+
+    if (result.refreshedTokens) {
+      setAuthCookies(response, result.refreshedTokens)
+    }
+
+    return response
   } catch (error) {
     console.error('POST /api/expenses error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ message: 'Internal server error' }, { status: 500 })
   }
 }

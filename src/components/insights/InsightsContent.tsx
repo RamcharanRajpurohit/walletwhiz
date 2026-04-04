@@ -10,8 +10,8 @@ export default function InsightsContent() {
 
   if (loadingReports) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500"></div>
+      <div className="chrome-card flex h-80 items-center justify-center rounded-[2rem]">
+        <div className="h-12 w-12 animate-spin rounded-full border-2 border-[var(--border-col)] border-t-[var(--accent)]"></div>
       </div>
     )
   }
@@ -41,10 +41,10 @@ export default function InsightsContent() {
   const sortedMonths = [...monthlyBreakdown].sort((a, b) => b.month.localeCompare(a.month)).slice(0, 6)
 
   return (
-    <div className="space-y-8 overflow-x-hidden">
+    <div className="space-y-6 overflow-x-hidden">
       {/* Insight Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white/90 backdrop-blur-md border-2 border-yellow-200/50 rounded-2xl p-6 shadow-lg">
+        <div className="metric-card rounded-[2rem] p-6">
           <div className="flex items-center space-x-2 mb-3">
             <Award className="h-5 w-5 text-yellow-500" />
             <p className="text-sm font-medium text-gray-600">Top Spending Category</p>
@@ -63,7 +63,7 @@ export default function InsightsContent() {
           )}
         </div>
 
-        <div className="bg-white/90 backdrop-blur-md border-2 border-yellow-200/50 rounded-2xl p-6 shadow-lg">
+        <div className="metric-card rounded-[2rem] p-6">
           <div className="flex items-center space-x-2 mb-3">
             <Target className="h-5 w-5 text-purple-500" />
             <p className="text-sm font-medium text-gray-600">Most Frequent Category</p>
@@ -81,7 +81,7 @@ export default function InsightsContent() {
           )}
         </div>
 
-        <div className="bg-white/90 backdrop-blur-md border-2 border-yellow-200/50 rounded-2xl p-6 shadow-lg">
+        <div className="metric-card rounded-[2rem] p-6">
           <div className="flex items-center space-x-2 mb-3">
             <Calendar className="h-5 w-5 text-blue-500" />
             <p className="text-sm font-medium text-gray-600">vs Last Month</p>
@@ -105,7 +105,7 @@ export default function InsightsContent() {
           )}
         </div>
 
-        <div className="bg-white/90 backdrop-blur-md border-2 border-yellow-200/50 rounded-2xl p-6 shadow-lg">
+        <div className="metric-card rounded-[2rem] p-6">
           <div className="flex items-center space-x-2 mb-3">
             <BarChart2 className="h-5 w-5 text-green-500" />
             <p className="text-sm font-medium text-gray-600">Avg Daily Spend</p>
@@ -116,7 +116,7 @@ export default function InsightsContent() {
       </div>
 
       {/* Category Breakdown Table */}
-      <div className="bg-white/90 backdrop-blur-md border-2 border-yellow-200/50 rounded-2xl p-6 shadow-lg">
+      <div className="metric-card rounded-[2rem] p-6">
         <h2 className="text-xl font-bold text-gray-900 mb-6">Category Breakdown</h2>
         {sortedCategories.length === 0 ? (
           <p className="text-gray-500 text-center py-8">No expense data available yet.</p>
@@ -154,7 +154,7 @@ export default function InsightsContent() {
       </div>
 
       {/* Monthly Trend */}
-      <div className="bg-white/90 backdrop-blur-md border-2 border-yellow-200/50 rounded-2xl p-6 shadow-lg">
+      <div className="metric-card rounded-[2rem] p-6">
         <h2 className="text-xl font-bold text-gray-900 mb-6">Recent Monthly Trend</h2>
         {sortedMonths.length === 0 ? (
           <p className="text-gray-500 text-center py-8">No monthly data available yet.</p>

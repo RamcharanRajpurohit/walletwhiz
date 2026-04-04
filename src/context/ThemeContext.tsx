@@ -16,7 +16,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   const applyTheme = (t: Theme) => {
     document.documentElement.classList.toggle('dark', t === 'dark')
-    const color = t === 'dark' ? '#111111' : '#ffffff'
+    const color = t === 'dark' ? '#161412' : '#efe5d5'
     document.querySelectorAll('meta[name="theme-color"]').forEach(el => el.setAttribute('content', color))
   }
 

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { X, AlertCircle, ChevronDown } from 'lucide-react'
 import { DEFAULT_CATEGORIES } from '@/constants/categories'
 import { toast } from 'sonner'
@@ -25,15 +26,48 @@ export default function ExpenseModal({ expense, onClose, onSuccess }: ExpenseMod
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(false)
   const [categoryOpen, setCategoryOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
+  const [isClosing, setIsClosing] = useState(false)
   const categoryRef = useRef<HTMLDivElement>(null)
+  const closeTimerRef = useRef<number | null>(null)
 
   useEffect(() => {
+    const raf = window.requestAnimationFrame(() => setMounted(true))
+
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+
     const handler = (e: MouseEvent) => {
       if (categoryRef.current && !categoryRef.current.contains(e.target as Node)) setCategoryOpen(false)
     }
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') requestClose(onClose)
+    }
+
     document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
+    window.addEventListener('keydown', handleEscape)
+
+    return () => {
+      document.removeEventListener('mousedown', handler)
+      window.removeEventListener('keydown', handleEscape)
+      document.body.style.overflow = previousOverflow
+      window.cancelAnimationFrame(raf)
+      if (closeTimerRef.current !== null) {
+        window.clearTimeout(closeTimerRef.current)
+      }
+    }
   }, [])
+
+  const requestClose = (afterClose: () => void) => {
+    if (isClosing) return
+    setIsClosing(true)
+    closeTimerRef.current = window.setTimeout(() => {
+      afterClose()
+    }, 220)
+  }
+
+  const isVisible = mounted && !isClosing
 
   const selectedCategory = DEFAULT_CATEGORIES.find(c => c.id === formData.category)
 
@@ -72,18 +106,27 @@ export default function ExpenseModal({ expense, onClose, onSuccess }: ExpenseMod
     setLoading(false)
     if (ok) {
       toast.success(expense?._id ? 'Transaction updated' : 'Transaction added')
-      onSuccess()
+      requestClose(onSuccess)
     }
   }
 
-  return (
-    <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center p-0 sm:p-4 z-[70]">
-      <div className="bg-white rounded-t-2xl sm:rounded-2xl max-w-md w-full p-4 sm:p-6 shadow-2xl max-h-[92vh] overflow-y-auto">
+  const modalContent = (
+    <div
+      className={`fixed inset-0 z-[120] flex items-end justify-center bg-[rgba(10,8,6,0.64)] px-3 pb-0 pt-12 backdrop-blur-[5px] transition-opacity duration-200 sm:items-center sm:px-6 sm:pb-6 sm:pt-6 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+      onClick={() => requestClose(onClose)}
+      aria-hidden="true"
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        className={`chrome-card max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-2xl border-[var(--border-strong)] p-4 shadow-[0_40px_120px_rgba(0,0,0,0.5)] transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] sm:rounded-2xl sm:p-6 ${isVisible ? 'translate-y-0 scale-100 opacity-100' : 'translate-y-8 scale-[0.98] opacity-0 sm:translate-y-4'}`}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">
+          <h2 className="text-2xl font-bold text-[var(--text-base)]">
             {expense?._id ? 'Edit Transaction' : 'Add Transaction'}
           </h2>
-          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+          <button onClick={() => requestClose(onClose)} className="rounded-lg p-2 text-[var(--text-soft)] transition-colors hover:bg-[var(--surface-muted)]">
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -91,15 +134,15 @@ export default function ExpenseModal({ expense, onClose, onSuccess }: ExpenseMod
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Type toggle */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Type</label>
+            <label className="mb-2 block text-sm font-semibold text-[var(--text-soft)]">Type</label>
             <div className="flex space-x-2">
               <button
                 type="button"
                 onClick={() => setFormData({ ...formData, type: 'expense' })}
                 className={`flex-1 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 ${
                   formData.type === 'expense'
-                    ? 'bg-gradient-to-r from-rose-400 to-rose-500 text-white shadow-sm'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    ? 'bg-[var(--danger)] text-white shadow-sm'
+                    : 'bg-[var(--surface-muted)] text-[var(--text-soft)] hover:bg-[var(--surface-muted-hover)]'
                 }`}
               >
                 Expense
@@ -109,8 +152,8 @@ export default function ExpenseModal({ expense, onClose, onSuccess }: ExpenseMod
                 onClick={() => setFormData({ ...formData, type: 'income' })}
                 className={`flex-1 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 ${
                   formData.type === 'income'
-                    ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-white shadow-sm'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    ? 'bg-[var(--success)] text-white shadow-sm'
+                    : 'bg-[var(--surface-muted)] text-[var(--text-soft)] hover:bg-[var(--surface-muted-hover)]'
                 }`}
               >
                 Income
@@ -119,42 +162,42 @@ export default function ExpenseModal({ expense, onClose, onSuccess }: ExpenseMod
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Amount (₹)</label>
+            <label className="mb-2 block text-sm font-semibold text-[var(--text-soft)]">Amount (₹)</label>
             <input
               type="number"
               step="0.01"
               value={formData.amount}
               onChange={(e) => { setFormData({ ...formData, amount: e.target.value }); if (errors.amount) setErrors({ ...errors, amount: '' }) }}
-              className={`w-full px-4 py-3 border-2 ${errors.amount ? 'border-rose-300' : 'border-yellow-200'} rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-200`}
+              className={`w-full rounded-xl border bg-[var(--surface-strong)] px-4 py-3 text-[var(--text-base)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-soft)] ${errors.amount ? 'border-[var(--danger)]' : 'border-[var(--border-input)]'}`}
               placeholder="0.00"
             />
-            {errors.amount && <p className="mt-2 text-sm text-rose-600 flex items-center"><AlertCircle className="w-4 h-4 mr-1" />{errors.amount}</p>}
+            {errors.amount && <p className="mt-2 flex items-center text-sm text-[var(--danger)]"><AlertCircle className="mr-1 h-4 w-4" />{errors.amount}</p>}
           </div>
 
           {/* Custom category picker */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Category</label>
+            <label className="mb-2 block text-sm font-semibold text-[var(--text-soft)]">Category</label>
             <div ref={categoryRef} className="relative">
               <button
                 type="button"
                 onClick={() => setCategoryOpen(o => !o)}
-                className={`w-full px-4 py-3 border-2 ${errors.category ? 'border-rose-300' : 'border-yellow-200'} rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-200 bg-white flex items-center justify-between`}
+                className={`flex w-full items-center justify-between rounded-xl border bg-[var(--surface-strong)] px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[var(--accent-soft)] ${errors.category ? 'border-[var(--danger)]' : 'border-[var(--border-input)]'}`}
               >
                 {selectedCategory ? (
                   <div className="flex items-center space-x-2">
                     <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ backgroundColor: `${selectedCategory.color}20` }}>
                       <selectedCategory.icon className="h-3.5 w-3.5" style={{ color: selectedCategory.color }} />
                     </div>
-                    <span className="text-sm text-gray-900">{selectedCategory.name}</span>
+                    <span className="text-sm text-[var(--text-base)]">{selectedCategory.name}</span>
                   </div>
                 ) : (
-                  <span className="text-sm text-gray-400">Select a category</span>
+                  <span className="text-sm text-[var(--text-muted)]">Select a category</span>
                 )}
-                <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${categoryOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`h-4 w-4 text-[var(--text-muted)] transition-transform ${categoryOpen ? 'rotate-180' : ''}`} />
               </button>
 
               {categoryOpen && (
-                <div className="absolute z-50 w-full mt-1 bg-white border-2 border-yellow-200 rounded-xl shadow-lg overflow-y-auto max-h-48">
+                <div className="absolute z-50 mt-1 max-h-48 w-full overflow-y-auto rounded-xl border border-[var(--border-col)] bg-[var(--surface-elevated)] shadow-lg">
                   {DEFAULT_CATEGORIES.map(cat => (
                     <button
                       key={cat.id}
@@ -164,57 +207,57 @@ export default function ExpenseModal({ expense, onClose, onSuccess }: ExpenseMod
                         if (errors.category) setErrors({ ...errors, category: '' })
                         setCategoryOpen(false)
                       }}
-                      className={`w-full flex items-center space-x-3 px-4 py-2.5 hover:bg-yellow-50 transition-colors ${formData.category === cat.id ? 'bg-yellow-50' : ''}`}
+                      className={`flex w-full items-center space-x-3 px-4 py-2.5 transition-colors hover:bg-[var(--surface-muted)] ${formData.category === cat.id ? 'bg-[var(--surface-muted)]' : ''}`}
                     >
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: `${cat.color}20` }}>
                         <cat.icon className="h-4 w-4" style={{ color: cat.color }} />
                       </div>
-                      <span className="text-sm text-gray-800">{cat.name}</span>
+                      <span className="text-sm text-[var(--text-soft)]">{cat.name}</span>
                     </button>
                   ))}
                 </div>
               )}
             </div>
-            {errors.category && <p className="mt-2 text-sm text-rose-600 flex items-center"><AlertCircle className="w-4 h-4 mr-1" />{errors.category}</p>}
+            {errors.category && <p className="mt-2 flex items-center text-sm text-[var(--danger)]"><AlertCircle className="mr-1 h-4 w-4" />{errors.category}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Date</label>
+            <label className="mb-2 block text-sm font-semibold text-[var(--text-soft)]">Date</label>
             <input
               type="date"
               value={formData.date}
               onChange={(e) => { setFormData({ ...formData, date: e.target.value }); if (errors.date) setErrors({ ...errors, date: '' }) }}
               max={new Date().toISOString().split('T')[0]}
-              className={`w-full px-4 py-3 border-2 ${errors.date ? 'border-rose-300' : 'border-yellow-200'} rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-200`}
+              className={`w-full rounded-xl border bg-[var(--surface-strong)] px-4 py-3 text-[var(--text-base)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-soft)] ${errors.date ? 'border-[var(--danger)]' : 'border-[var(--border-input)]'}`}
             />
-            {errors.date && <p className="mt-2 text-sm text-rose-600 flex items-center"><AlertCircle className="w-4 h-4 mr-1" />{errors.date}</p>}
+            {errors.date && <p className="mt-2 flex items-center text-sm text-[var(--danger)]"><AlertCircle className="mr-1 h-4 w-4" />{errors.date}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Note</label>
+            <label className="mb-2 block text-sm font-semibold text-[var(--text-soft)]">Note</label>
             <textarea
               value={formData.note}
               onChange={(e) => { setFormData({ ...formData, note: e.target.value }); if (errors.note) setErrors({ ...errors, note: '' }) }}
               rows={3}
               maxLength={500}
-              className={`w-full px-4 py-3 border-2 ${errors.note ? 'border-rose-300' : 'border-yellow-200'} rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-200 resize-none`}
+              className={`w-full resize-none rounded-xl border bg-[var(--surface-strong)] px-4 py-3 text-[var(--text-base)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-soft)] ${errors.note ? 'border-[var(--danger)]' : 'border-[var(--border-input)]'}`}
               placeholder="What was this for?"
             />
-            {errors.note && <p className="mt-2 text-sm text-rose-600 flex items-center"><AlertCircle className="w-4 h-4 mr-1" />{errors.note}</p>}
+            {errors.note && <p className="mt-2 flex items-center text-sm text-[var(--danger)]"><AlertCircle className="mr-1 h-4 w-4" />{errors.note}</p>}
           </div>
 
           <div className="flex space-x-3 pt-4">
             <button
               type="button"
-              onClick={onClose}
-              className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
+              onClick={() => requestClose(onClose)}
+              className="flex-1 rounded-xl border border-[var(--border-col)] px-4 py-3 font-medium text-[var(--text-soft)] transition-colors hover:bg-[var(--surface-muted)]"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 px-4 py-3 bg-gradient-to-r from-yellow-400 to-rose-400 hover:from-yellow-500 hover:to-rose-500 text-white rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 rounded-xl bg-[var(--accent)] px-4 py-3 font-medium text-white transition-colors hover:bg-[var(--accent-strong)] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading ? 'Saving...' : expense?._id ? 'Update' : 'Add'}
             </button>
@@ -223,4 +266,8 @@ export default function ExpenseModal({ expense, onClose, onSuccess }: ExpenseMod
       </div>
     </div>
   )
+
+  if (typeof document === 'undefined') return null
+
+  return createPortal(modalContent, document.body)
 }

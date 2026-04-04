@@ -1,38 +1,18 @@
-import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { AUTH_COOKIE_NAME, REFRESH_COOKIE_NAME } from '@/lib/backend'
 
 export async function proxy(req: NextRequest) {
-  const res = NextResponse.next()
-  
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return req.cookies.getAll()
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            req.cookies.set(name, value)
-            res.cookies.set(name, value, options)
-          })
-        },
-      },
-    }
-  )
-  
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
+  const accessToken = req.cookies.get(AUTH_COOKIE_NAME)?.value
+  const refreshToken = req.cookies.get(REFRESH_COOKIE_NAME)?.value
+  const hasSession = Boolean(accessToken || refreshToken)
 
   // Protected routes
   if (req.nextUrl.pathname.startsWith('/dashboard') ||
       req.nextUrl.pathname.startsWith('/expenses') ||
       req.nextUrl.pathname.startsWith('/reports') ||
       req.nextUrl.pathname.startsWith('/insights')) {
-    if (!session) {
+    if (!hasSession) {
       return NextResponse.redirect(new URL('/login', req.url))
     }
   }
@@ -40,12 +20,12 @@ export async function proxy(req: NextRequest) {
   // Auth routes redirect if logged in
   if (req.nextUrl.pathname.startsWith('/login') || 
       req.nextUrl.pathname.startsWith('/signup')) {
-    if (session) {
+    if (hasSession) {
       return NextResponse.redirect(new URL('/dashboard', req.url))
     }
   }
 
-  return res
+  return NextResponse.next()
 }
 
 export const config = {

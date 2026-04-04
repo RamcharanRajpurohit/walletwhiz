@@ -1,8 +1,23 @@
 import type { Metadata } from 'next'
+import { Fraunces, Work_Sans } from 'next/font/google'
 import './globals.css'
 import { Toaster } from 'sonner'
-import { RoleProvider } from '@/context/RoleContext'
+import { AuthProvider } from '@/context/AuthContext'
 import { ThemeProvider } from '@/context/ThemeContext'
+import ServiceWorkerRegistration from '@/components/shared/ServiceWorkerRegistration'
+
+const displayFont = Fraunces({
+  subsets: ['latin'],
+  variable: '--font-display',
+  weight: ['500', '600', '700'],
+})
+
+const bodyFont = Work_Sans({
+  subsets: ['latin'],
+  variable: '--font-body',
+  weight: ['400', '500', '600', '700'],
+})
+
 export const metadata: Metadata = {
   title: 'WalletWhiz - Personal Finance Tracker',
   description: 'Track your daily expenses, categorize spending, and gain insights into your financial habits.',
@@ -27,8 +42,8 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="WalletWhiz" />
-        <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
-        <meta name="theme-color" content="#111111" media="(prefers-color-scheme: dark)" />
+        <meta name="theme-color" content="#efe5d5" media="(prefers-color-scheme: light)" />
+        <meta name="theme-color" content="#161412" media="(prefers-color-scheme: dark)" />
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <link rel="manifest" href="/manifest.json" />
         {/* Runs before React hydrates — prevents theme flash */}
@@ -43,12 +58,13 @@ export default function RootLayout({
           })();
         `}} />
       </head>
-      <body suppressHydrationWarning>
+      <body className={`${displayFont.variable} ${bodyFont.variable}`} suppressHydrationWarning>
         <ThemeProvider>
-          <RoleProvider>
+          <AuthProvider>
             {children}
-          </RoleProvider>
+          </AuthProvider>
         </ThemeProvider>
+        <ServiceWorkerRegistration />
         <Toaster position="top-right" richColors duration={1500} />
       </body>
     </html>

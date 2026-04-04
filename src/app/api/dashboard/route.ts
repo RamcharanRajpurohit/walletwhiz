@@ -1,166 +1,212 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase/server'
-import { connectDB } from '@/lib/mongodb/connection'
-import { ExpenseModel } from '@/lib/mongodb/models'
+import { buildBackendUrl, clearAuthCookies, fetchBackendWithSession, setAuthCookies } from '@/lib/backend'
 
-function periodRange(period: string): { start: Date; end: Date; prevStart: Date; prevEnd: Date } {
+type Period = 'day' | 'week' | 'month'
+
+type BackendRecord = {
+  id: string
+  amount: number
+  category: string
+  type: 'income' | 'expense'
+  occurredAt: string
+  notes?: string
+  createdAt?: string
+  updatedAt?: string
+  createdBy?: { id?: string } | null
+}
+
+function startOfDay(date: Date) {
+  const next = new Date(date)
+  next.setHours(0, 0, 0, 0)
+  return next
+}
+
+function endOfDay(date: Date) {
+  const next = new Date(date)
+  next.setHours(23, 59, 59, 999)
+  return next
+}
+
+function periodRange(period: Period) {
   const now = new Date()
-  let start: Date, end: Date, prevStart: Date, prevEnd: Date
 
   if (period === 'day') {
-    start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0)
-    end   = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59)
-    prevStart = new Date(start); prevStart.setDate(prevStart.getDate() - 1)
-    prevEnd   = new Date(end);   prevEnd.setDate(prevEnd.getDate() - 1)
-  } else if (period === 'week') {
-    const day = now.getDay() // 0=Sun
-    const diffToMon = (day === 0 ? -6 : 1 - day)
-    start = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diffToMon, 0, 0, 0)
-    end   = new Date(start); end.setDate(end.getDate() + 6); end.setHours(23, 59, 59)
-    prevStart = new Date(start); prevStart.setDate(prevStart.getDate() - 7)
-    prevEnd   = new Date(end);   prevEnd.setDate(prevEnd.getDate() - 7)
-  } else {
-    // month
-    start = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0)
-    end   = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59)
-    prevStart = new Date(now.getFullYear(), now.getMonth() - 1, 1, 0, 0, 0)
-    prevEnd   = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59)
+    const start = startOfDay(now)
+    const end = endOfDay(now)
+    const prevStart = new Date(start)
+    prevStart.setDate(prevStart.getDate() - 1)
+    const prevEnd = new Date(end)
+    prevEnd.setDate(prevEnd.getDate() - 1)
+    return { start, end, prevStart, prevEnd }
   }
+
+  if (period === 'week') {
+    const start = startOfDay(new Date(now))
+    const weekday = start.getDay()
+    const diffToMonday = weekday === 0 ? -6 : 1 - weekday
+    start.setDate(start.getDate() + diffToMonday)
+    const end = endOfDay(new Date(start))
+    end.setDate(end.getDate() + 6)
+    const prevStart = new Date(start)
+    prevStart.setDate(prevStart.getDate() - 7)
+    const prevEnd = new Date(end)
+    prevEnd.setDate(prevEnd.getDate() - 7)
+    return { start, end, prevStart, prevEnd }
+  }
+
+  const start = new Date(now.getFullYear(), now.getMonth(), 1)
+  const end = endOfDay(new Date(now.getFullYear(), now.getMonth() + 1, 0))
+  const prevStart = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+  const prevEnd = endOfDay(new Date(now.getFullYear(), now.getMonth(), 0))
   return { start, end, prevStart, prevEnd }
+}
+
+function mapRecordToExpense(record: BackendRecord) {
+  return {
+    _id: record.id,
+    userId: record.createdBy?.id ?? '',
+    amount: record.amount,
+    category: record.category,
+    type: record.type,
+    date: record.occurredAt,
+    note: record.notes ?? '',
+    createdAt: record.createdAt,
+    updatedAt: record.updatedAt,
+  }
+}
+
+function formatDailyLabel(label: string, period: Period) {
+  const date = new Date(label)
+
+  if (Number.isNaN(date.getTime())) {
+    return label
+  }
+
+  if (period === 'day') {
+    return new Intl.DateTimeFormat('en-US', { hour: 'numeric' }).format(date)
+  }
+
+  if (period === 'week') {
+    return new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(date)
+  }
+
+  return `${date.getDate()}`
+}
+
+type OverviewData = {
+  totals?: { totalExpenses?: number; totalIncome?: number; netBalance?: number; totalRecords?: number }
+  categoryTotals?: { category: string; totalAmount: number; count: number }[]
+  trends?: { label: string; expense: number; income?: number; netBalance?: number; recordCount: number }[]
+  recentActivity?: BackendRecord[]
+}
+
+async function fetchOverview(params: URLSearchParams) {
+  const result = await fetchBackendWithSession<{ data?: OverviewData }>(
+    buildBackendUrl('/dashboard/overview', params)
+  )
+
+  if (!result.ok) {
+    const response = NextResponse.json(
+      { message: result.message ?? 'Failed to load dashboard data' },
+      { status: result.status }
+    )
+
+    if (result.clearAuth) {
+      clearAuthCookies(response)
+    }
+
+    return {
+      error: response,
+      data: null,
+      refreshedTokens: undefined,
+    }
+  }
+
+  return {
+    error: null,
+    data: result.payload?.data ?? null,
+    refreshedTokens: result.refreshedTokens,
+  }
 }
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createServerClient()
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-    await connectDB()
-    const userId = session.user.id
-    const period = request.nextUrl.searchParams.get('period') || 'month'
+    const period = (request.nextUrl.searchParams.get('period') ?? 'month') as Period
+    const recentLimit = request.nextUrl.searchParams.get('recentLimit') ?? '5'
     const { start, end, prevStart, prevEnd } = periodRange(period)
 
-    // Group key for time-series depends on period
-    const groupId =
-      period === 'day'
-        ? { hour: { $hour: '$date' } }
-        : period === 'week'
-        ? { dayOfWeek: { $dayOfWeek: '$date' }, day: { $dayOfMonth: '$date' }, month: { $month: '$date' } }
-        : { day: { $dayOfMonth: '$date' }, month: { $month: '$date' } }
-
-    const [result] = await ExpenseModel.aggregate([
-      { $match: { userId } },
-      {
-        $facet: {
-          // Current period stats
-          current: [
-            { $match: { date: { $gte: start, $lte: end } } },
-            {
-              $group: {
-                _id: '$type',
-                total: { $sum: '$amount' },
-                count: { $sum: 1 },
-              },
-            },
-          ],
-          // Previous period stats (for delta)
-          previous: [
-            { $match: { date: { $gte: prevStart, $lte: prevEnd } } },
-            {
-              $group: {
-                _id: '$type',
-                total: { $sum: '$amount' },
-                count: { $sum: 1 },
-              },
-            },
-          ],
-          // Time-series breakdown (expenses only, current period)
-          timeSeries: [
-            { $match: { date: { $gte: start, $lte: end }, type: { $in: ['expense', null] } } },
-            {
-              $group: {
-                _id: groupId,
-                total: { $sum: '$amount' },
-                count: { $sum: 1 },
-              },
-            },
-            { $sort: { '_id.month': 1, '_id.day': 1, '_id.hour': 1, '_id.dayOfWeek': 1 } },
-          ],
-          // Category breakdown (expenses only, current period)
-          categories: [
-            { $match: { date: { $gte: start, $lte: end }, type: { $in: ['expense', null] } } },
-            {
-              $group: {
-                _id: '$category',
-                total: { $sum: '$amount' },
-                count: { $sum: 1 },
-              },
-            },
-            { $sort: { total: -1 } },
-            { $limit: 8 },
-          ],
-        },
-      },
-    ])
-
-    // Build current stats
-    let spent = 0, income = 0, txCount = 0
-    for (const s of result.current) {
-      if (s._id === 'income') { income += s.total; txCount += s.count }
-      else { spent += s.total; txCount += s.count }
-    }
-
-    // Build previous stats
-    let prevSpent = 0, prevIncome = 0
-    for (const s of result.previous) {
-      if (s._id === 'income') prevIncome += s.total
-      else prevSpent += s.total
-    }
-
-    // Format time-series labels
-    const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-    const timeSeries = result.timeSeries.map((t: { _id: Record<string, number>; total: number; count: number }) => {
-      let label = ''
-      if (period === 'day') {
-        const h = t._id.hour
-        label = h === 0 ? '12am' : h < 12 ? `${h}am` : h === 12 ? '12pm' : `${h - 12}pm`
-      } else if (period === 'week') {
-        label = DAY_NAMES[(t._id.dayOfWeek - 1 + 7) % 7] // MongoDB dayOfWeek: 1=Sun
-      } else {
-        label = `${t._id.day}`
-      }
-      return { label, total: t.total, count: t.count }
+    const currentParams = new URLSearchParams({
+      trend: period === 'day' ? 'hourly' : 'daily',
+      recentLimit,
+      from: start.toISOString(),
+      to: end.toISOString(),
     })
 
-    // Fill gaps for week (show all 7 days even if 0)
-    let filledTimeSeries = timeSeries
-    if (period === 'week') {
-      filledTimeSeries = DAY_NAMES.map(d => timeSeries.find((t: { label: string }) => t.label === d) || { label: d, total: 0, count: 0 })
-    }
+    const previousParams = new URLSearchParams({
+      trend: 'daily',
+      recentLimit: '1',
+      from: prevStart.toISOString(),
+      to: prevEnd.toISOString(),
+    })
 
-    const categories = result.categories.map((c: { _id: string; total: number; count: number }) => ({
-      category: c._id,
-      total: c.total,
-      count: c.count,
-      percentage: spent > 0 ? (c.total / spent) * 100 : 0,
+    const [current, previous] = await Promise.all([
+      fetchOverview(currentParams),
+      fetchOverview(previousParams),
+    ])
+
+    if (current.error) return current.error
+    if (previous.error) return previous.error
+
+    const currentData = current.data
+    const previousData = previous.data
+    const spent = currentData?.totals?.totalExpenses ?? 0
+    const income = currentData?.totals?.totalIncome ?? 0
+    const expenseCount = (currentData?.categoryTotals ?? []).reduce(
+      (sum: number, item: { count: number }) => sum + item.count,
+      0
+    )
+
+    const categories = (currentData?.categoryTotals ?? []).map((item: { category: string; totalAmount: number; count: number }) => ({
+      category: item.category,
+      total: item.totalAmount,
+      count: item.count,
+      percentage: spent > 0 ? (item.totalAmount / spent) * 100 : 0,
     }))
 
-    return NextResponse.json({
+    const timeSeries = (currentData?.trends ?? []).map((item: { label: string; expense: number; income?: number; netBalance?: number; recordCount: number }) => ({
+      label: formatDailyLabel(item.label, period),
+      total: item.expense,
+      income: item.income ?? 0,
+      balance: item.netBalance ?? (item.income ?? 0) - item.expense,
+      count: item.recordCount,
+    }))
+
+    const response = NextResponse.json({
       period,
-      range: { start, end },
       stats: {
         spent,
         income,
-        balance: income - spent,
-        txCount,
-        avgExpense: txCount > 0 ? spent / txCount : 0,
+        balance: currentData?.totals?.netBalance ?? income - spent,
+        txCount: currentData?.totals?.totalRecords ?? 0,
+        avgExpense: expenseCount > 0 ? spent / expenseCount : 0,
       },
-      prev: { spent: prevSpent, income: prevIncome },
-      timeSeries: filledTimeSeries,
+      prev: {
+        spent: previousData?.totals?.totalExpenses ?? 0,
+        income: previousData?.totals?.totalIncome ?? 0,
+      },
+      timeSeries,
       categories,
+      recentTransactions: (currentData?.recentActivity ?? []).map((item: BackendRecord) => mapRecordToExpense(item)),
     })
+
+    const refreshedTokens = current.refreshedTokens ?? previous.refreshedTokens
+    if (refreshedTokens) {
+      setAuthCookies(response, refreshedTokens)
+    }
+
+    return response
   } catch (error) {
     console.error('GET /api/dashboard error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ message: 'Internal server error' }, { status: 500 })
   }
 }
