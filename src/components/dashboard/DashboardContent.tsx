@@ -133,8 +133,8 @@ export default function DashboardContent() {
   const leadCategory = data?.categories?.[0]
 
   return (
-    <div className="space-y-6">
-      <section className="grid gap-5 lg:grid-cols-[1.45fr_0.95fr]">
+    <div className="space-y-6 min-w-0 w-full">
+      <section className="grid gap-5 min-w-0 lg:grid-cols-[1.45fr_0.95fr]">
         {loading ? (
           <>
             <div className="paper-card animate-pulse rounded-[2rem] p-7">
@@ -276,7 +276,7 @@ export default function DashboardContent() {
           {loading ? (
             <div className="mt-6 h-64 animate-pulse rounded-[1.5rem] bg-[var(--paper-surface-muted)]" />
           ) : cadenceSeries.length ? (
-            <div className="mt-6 h-[255px]">
+            <div className="mt-6 h-[255px] min-w-0 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 {period === 'month' ? (
                   <AreaChart data={cadenceSeries}>
@@ -435,7 +435,7 @@ export default function DashboardContent() {
         </div>
       </section>
 
-      <section className="paper-card relative rounded-[2rem] p-4 md:p-6 overflow-hidden">
+      <section className="paper-card relative rounded-[2rem] p-4 md:p-6 w-full min-w-0">
         <div className="flex items-end justify-between gap-4">
           <div>
             <p className="section-kicker">Recent Ledger</p>
@@ -466,9 +466,9 @@ export default function DashboardContent() {
               return (
                 <div
                   key={tx._id}
-                  className="rounded-[1.5rem] border border-[var(--paper-border)] bg-[var(--paper-card-strong)] p-4"
+                  className="overflow-hidden rounded-[1.5rem] border border-[var(--paper-border)] bg-[var(--paper-card-strong)] p-3 sm:p-4"
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex min-w-0 items-start gap-3">
                     <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[1rem]" style={{ backgroundColor: `${cat.color}20` }}>
                       <cat.icon className="h-4 w-4" style={{ color: cat.color }} />
                     </div>
@@ -478,7 +478,7 @@ export default function DashboardContent() {
                         {cat.name} · {formatDate(tx.date)}
                       </p>
                     </div>
-                    <p className={`shrink-0 text-sm font-semibold ${isIncome ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>
+                    <p className={`max-w-[7rem] shrink-0 text-right text-xs font-semibold leading-5 sm:max-w-none sm:text-sm ${isIncome ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>
                       {isIncome ? '+' : '-'}{formatCurrency(tx.amount)}
                     </p>
                   </div>

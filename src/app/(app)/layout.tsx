@@ -58,8 +58,8 @@ export default function AppLayout({ children: _ }: { children: React.ReactNode }
     <TransactionProvider>
       <div className="app-shell">
         <Sidebar />
-        <div className="min-h-screen md:pl-[22rem]">
-          <main className="app-main min-w-0 px-4 pb-28 pt-4 md:px-8 md:pb-10 md:pt-6">
+        <div className="min-h-screen min-w-0 overflow-x-hidden md:pl-[22rem]">
+          <main className="app-main min-w-0 px-2 pb-28 pt-4 sm:px-4 md:px-8 md:pb-10 md:pt-6">
             <Header />
 
             <div className="mt-6 space-y-6">

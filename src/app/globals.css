@@ -107,6 +107,8 @@ html {
 }
 
 body {
+  width: 100%;
+  max-width: 100%;
   min-height: 100vh;
   color: var(--text-base);
   font-family: var(--font-body), sans-serif;
@@ -210,12 +212,24 @@ input[type="date"] {
   position: relative;
   min-height: 100vh;
   isolation: isolate;
+  overflow-x: hidden;
 }
 
 .app-main {
   position: relative;
-  width: min(1240px, 100%);
+  width: 100%;
+  max-width: 1240px;
   margin-inline: auto;
+}
+
+@media (max-width: 767px) {
+  html,
+  body,
+  .app-shell,
+  .app-main {
+    width: 100%;
+    max-width: 100%;
+  }
 }
 
 .chrome-card {
