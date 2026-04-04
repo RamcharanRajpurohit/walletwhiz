@@ -107,7 +107,7 @@ export default function BottomNav() {
               </button>
             </div>
 
-            <div className="mt-5 rounded-[1.6rem] border border-[var(--border-col)] bg-[rgba(255,255,255,0.45)] p-4">
+            <div className="mt-5 rounded-[1.6rem] border border-[var(--border-col)] bg-[var(--surface-muted)] p-4">
               <div className="flex items-center gap-3">
                 <div className="flex h-11 w-11 items-center justify-center rounded-[1rem] bg-[var(--accent-soft)] text-[var(--accent-strong)]">
                   <Sparkles className="h-4 w-4" />
@@ -119,7 +119,7 @@ export default function BottomNav() {
               </div>
             </div>
 
-            <div className="mt-5 flex items-center justify-between rounded-[1.4rem] border border-[var(--border-col)] bg-[rgba(255,255,255,0.45)] px-4 py-3">
+            <div className="mt-5 flex items-center justify-between rounded-[1.4rem] border border-[var(--border-col)] bg-[var(--surface-muted)] px-4 py-3">
               <div>
                 <p className="text-sm font-semibold text-[var(--text-base)]">Appearance</p>
                 <p className="text-xs text-[var(--text-muted)]">{theme === 'dark' ? 'Evening reading mode' : 'Paper-toned daylight mode'}</p>
@@ -143,7 +143,7 @@ export default function BottomNav() {
                     className={`rounded-[1.2rem] px-3 py-3 text-sm font-semibold transition-all ${
                       user?.role === role
                         ? 'bg-[var(--accent)] text-white shadow-[0_16px_34px_rgba(21,18,16,0.16)]'
-                        : 'border border-[var(--border-col)] bg-[rgba(255,255,255,0.45)] text-[var(--text-soft)]'
+                        : 'border border-[var(--border-col)] bg-[var(--surface-muted)] text-[var(--text-soft)]'
                     }`}
                   >
                     {account.label}
