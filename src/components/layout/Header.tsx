@@ -121,10 +121,12 @@ export default function Header() {
           <div className="flex flex-wrap items-center gap-3 ml-auto">
           {showAddTransaction && (
             <>
-              <button onClick={() => setIsExpenseModalOpen(true)} className="editorial-pill md:hidden" style={{ cursor: 'pointer' }}>
-                <Plus className="h-3.5 w-3.5" />
-                Add
-              </button>
+              <span className="md:hidden">
+                <button onClick={() => setIsExpenseModalOpen(true)} className="editorial-pill" style={{ cursor: 'pointer' }}>
+                  <Plus className="h-3.5 w-3.5" />
+                  Add
+                </button>
+              </span>
               <span className="hidden md:contents">
                 <button onClick={() => setIsExpenseModalOpen(true)} className="premium-button shrink-0">
                   <Plus className="h-4 w-4" />
