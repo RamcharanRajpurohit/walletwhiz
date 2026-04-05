@@ -515,6 +515,16 @@ input[type="date"] {
   cursor: pointer;
 }
 
+.date-input[data-has-value='false'] {
+  color: var(--paper-text-soft);
+  -webkit-text-fill-color: var(--paper-text-soft);
+}
+
+.date-input[data-has-value='true'] {
+  color: var(--paper-text);
+  -webkit-text-fill-color: var(--paper-text);
+}
+
 .dark .date-input::-webkit-calendar-picker-indicator {
   filter: invert(1);
   opacity: 1;

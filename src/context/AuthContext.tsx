@@ -16,11 +16,31 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null)
+  const [user, setUser] = useState<AuthUser | null>(() => {
+    try {
+      const cached = localStorage.getItem('ww_user')
+      return cached ? JSON.parse(cached) : null
+    } catch {
+      return null
+    }
+  })
   const [loading, setLoading] = useState(true)
   const [authError, setAuthError] = useState(false)
 
   const refresh = useCallback(async () => {
+    // If offline and we have session cookies, skip the network call
+    // and stay in whatever state we're in (user already set or initial load)
+    if (!navigator.onLine) {
+      const hasSession = document.cookie.includes('walletwhiz_access_token') || document.cookie.includes('walletwhiz_refresh_token')
+      if (hasSession) {
+        // Trust cookies — don't clear user or set error
+        return
+      }
+      // No cookies offline = not logged in
+      setUser(null)
+      return
+    }
+
     try {
       const res = await fetch('/api/auth/me', {
         method: 'GET',
@@ -31,7 +51,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (res.status === 401 || res.status === 403) {
           setUser(null)
         } else {
-          // Backend down or error — set authError so layout doesn't loop
           setAuthError(true)
         }
         return
@@ -39,9 +58,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       setAuthError(false)
       const data = await res.json()
-      setUser(data.user ?? null)
+      const freshUser = data.user ?? null
+      setUser(freshUser)
+      try {
+        if (freshUser) localStorage.setItem('ww_user', JSON.stringify(freshUser))
+        else localStorage.removeItem('ww_user')
+      } catch { /* ignore */ }
     } catch {
-      setAuthError(true)
+      // Network error while supposedly online — treat as backend down
+      const hasSession = document.cookie.includes('walletwhiz_access_token') || document.cookie.includes('walletwhiz_refresh_token')
+      if (hasSession) {
+        setAuthError(true)
+      } else {
+        setUser(null)
+      }
     }
   }, [])
 
@@ -51,6 +81,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setUser(null)
       setAuthError(false)
+      try { localStorage.removeItem('ww_user') } catch { /* ignore */ }
     }
   }, [])
 

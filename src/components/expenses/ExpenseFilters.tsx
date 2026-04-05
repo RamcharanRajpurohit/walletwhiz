@@ -161,9 +161,7 @@ export default function ExpenseFilters() {
             value={filters.startDate || ''}
             onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
             className="date-input w-full rounded-[1.2rem] border border-[var(--paper-border)] bg-[var(--paper-card-strong)] px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-200"
-            style={{
-              color: 'var(--paper-text)',
-            }}
+            data-has-value={Boolean(filters.startDate)}
           />
         </div>
 
@@ -175,10 +173,7 @@ export default function ExpenseFilters() {
             onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
             max={new Date().toISOString().split('T')[0]}
             className="date-input w-full rounded-[1.2rem] border border-[var(--paper-border)] bg-[var(--paper-card-strong)] px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-200"
-            style={{
-              color: filters.endDate ? 'var(--paper-text)' : 'var(--paper-text-soft)',
-              WebkitTextFillColor: filters.endDate ? 'var(--paper-text)' : 'var(--paper-text-soft)',
-            }}
+            data-has-value={Boolean(filters.endDate)}
           />
         </div>
       </div>

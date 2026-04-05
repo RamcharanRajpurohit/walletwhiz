@@ -378,7 +378,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
 
       if (data.type === 'WALLETWHIZ_QUEUE_SYNCED') {
         const replacements = Array.isArray(data.replacements)
-          ? (data.replacements as unknown[]).filter((item): item is { tempId: string; realId: string } =>
+          ? (data.replacements as unknown[]).filter((item: unknown): item is { tempId: string; realId: string } =>
               Boolean(item && typeof (item as Record<string, unknown>).tempId === 'string' && typeof (item as Record<string, unknown>).realId === 'string')
             )
           : []

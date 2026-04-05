@@ -88,29 +88,29 @@ export default function ExpenseList() {
 
   return (
     <>
-      <div className="paper-card relative rounded-[2rem] p-6">
+      <div className="paper-card relative rounded-[2rem] p-4 sm:p-6">
         {/* Header */}
-        <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center space-x-2 text-sm">
             <span className="text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-[var(--paper-muted)]">Sort</span>
             <button
               onClick={() => toggleSort('date')}
-              className={`rounded-full px-3 py-1.5 font-medium transition-colors ${
-                sortBy === 'date' ? 'bg-[var(--surface-inverse)] text-[var(--surface)]' : 'text-[var(--paper-text-soft)] hover:bg-[rgba(84,63,39,0.08)]'
+              className={`rounded-full px-2.5 py-1.5 text-xs font-medium transition-colors sm:px-3 sm:text-sm ${
+                sortBy === 'date' ? 'bg-[var(--surface-inverse)] text-[var(--surface)] dark:bg-[var(--accent)] dark:text-[var(--surface)]' : 'text-[var(--paper-text-soft)] hover:bg-[rgba(84,63,39,0.08)] dark:hover:bg-[rgba(214,189,158,0.12)]'
               }`}
             >
               Date {sortBy === 'date' ? (sortDir === 'desc' ? '↓' : '↑') : ''}
             </button>
             <button
               onClick={() => toggleSort('amount')}
-              className={`rounded-full px-3 py-1.5 font-medium transition-colors ${
-                sortBy === 'amount' ? 'bg-[var(--surface-inverse)] text-[var(--surface)]' : 'text-[var(--paper-text-soft)] hover:bg-[rgba(84,63,39,0.08)]'
+              className={`rounded-full px-2.5 py-1.5 text-xs font-medium transition-colors sm:px-3 sm:text-sm ${
+                sortBy === 'amount' ? 'bg-[var(--surface-inverse)] text-[var(--surface)] dark:bg-[var(--accent)] dark:text-[var(--surface)]' : 'text-[var(--paper-text-soft)] hover:bg-[rgba(84,63,39,0.08)] dark:hover:bg-[rgba(214,189,158,0.12)]'
               }`}
             >
               Amount {sortBy === 'amount' ? (sortDir === 'desc' ? '↓' : '↑') : ''}
             </button>
           </div>
-          <span className="text-sm text-[var(--paper-muted)]">
+          <span className="w-full text-sm text-[var(--paper-muted)] sm:w-auto sm:text-right">
             {from}–{to} of {total} transactions
           </span>
         </div>
@@ -123,67 +123,74 @@ export default function ExpenseList() {
             return (
               <div
                 key={expense._id}
-                className="flex items-center gap-3 rounded-[1.6rem] border border-[var(--paper-border)] bg-[var(--paper-card-strong)] p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-[rgba(84,63,39,0.18)] hover:shadow-[0_18px_34px_rgba(53,38,22,0.08)]"
+                className="rounded-[1.6rem] border border-[var(--paper-border)] bg-[var(--paper-card-strong)] p-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-[rgba(84,63,39,0.18)] hover:shadow-[0_18px_34px_rgba(53,38,22,0.08)] sm:p-4"
               >
-                <div
-                  className="w-10 h-10 shrink-0 rounded-[1rem] flex items-center justify-center"
-                  style={{ backgroundColor: `${category.color}20` }}
-                >
-                  <category.icon className="h-4 w-4" style={{ color: category.color }} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="truncate text-sm font-semibold text-[var(--paper-text)]">{expense.note}</p>
-                  <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5">
-                    <span className="max-w-[80px] truncate text-xs text-[var(--paper-text-soft)]">{category.name}</span>
-                    <span className="text-xs text-[var(--paper-muted)]">•</span>
-                    <span className="text-xs text-[var(--paper-text-soft)]">{formatDate(expense.date)}</span>
-                    <span className={`flex items-center gap-0.5 text-xs font-medium px-2 py-0.5 rounded-full ${
-                      isIncome ? 'bg-[rgba(45,106,79,0.12)] text-[var(--success)]' : 'bg-[rgba(147,68,56,0.12)] text-[var(--danger)]'
-                    }`}>
-                      {isIncome ? <ArrowUpCircle className="h-3 w-3" /> : <ArrowDownCircle className="h-3 w-3" />}
-                      {isIncome ? 'Income' : 'Expense'}
-                    </span>
+                <div className="flex min-w-0 items-start gap-3">
+                  <div
+                    className="h-10 w-10 shrink-0 rounded-[1rem] flex items-center justify-center"
+                    style={{ backgroundColor: `${category.color}20` }}
+                  >
+                    <category.icon className="h-4 w-4" style={{ color: category.color }} />
                   </div>
-                </div>
-                <div className="flex flex-col items-end gap-1 shrink-0 ml-2">
-                  <p className={`text-sm font-bold whitespace-nowrap ${isIncome ? 'text-green-600' : 'text-rose-600'}`}>
-                    {isIncome ? '+' : '-'}{formatCurrency(expense.amount)}
-                  </p>
-                  {canEdit && (
-                    <div className="flex items-center gap-0.5">
-                      {confirmDeleteId === expense._id ? (
-                        <>
-                          <button
-                            onClick={() => handleDelete(expense._id!)}
-                            className="px-2 py-1 text-[10px] font-semibold bg-[var(--danger)] text-white rounded-full"
-                          >
-                            Yes
-                          </button>
-                          <button
-                            onClick={() => setConfirmDeleteId(null)}
-                            className="px-2 py-1 text-[10px] font-semibold bg-[var(--surface-muted)] text-[var(--text-soft)] rounded-full"
-                          >
-                            No
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          <button
-                            onClick={() => setEditingExpense(expense)}
-                            className="p-1.5 text-yellow-600 hover:bg-yellow-100 rounded-full transition-colors"
-                          >
-                            <Edit2 className="h-3 w-3" />
-                          </button>
-                          <button
-                            onClick={() => setConfirmDeleteId(expense._id!)}
-                            className="p-1.5 text-rose-600 hover:bg-rose-100 rounded-full transition-colors"
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </button>
-                        </>
-                      )}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex min-w-0 items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold text-[var(--paper-text)]">{expense.note}</p>
+                        <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                          <span className="max-w-[80px] truncate text-xs text-[var(--paper-text-soft)]">{category.name}</span>
+                          <span className="text-xs text-[var(--paper-muted)]">•</span>
+                          <span className="text-xs text-[var(--paper-text-soft)]">{formatDate(expense.date)}</span>
+                          <span className={`flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-medium ${
+                            isIncome ? 'bg-[rgba(45,106,79,0.12)] text-[var(--success)]' : 'bg-[rgba(147,68,56,0.12)] text-[var(--danger)]'
+                          }`}>
+                            {isIncome ? <ArrowUpCircle className="h-3 w-3" /> : <ArrowDownCircle className="h-3 w-3" />}
+                            {isIncome ? 'Income' : 'Expense'}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="ml-1 shrink-0 text-right">
+                        <p className={`text-sm font-bold leading-5 sm:text-base ${isIncome ? 'text-green-600' : 'text-rose-600'}`}>
+                          {isIncome ? '+' : '-'}{formatCurrency(expense.amount)}
+                        </p>
+                        {canEdit && (
+                          <div className="mt-1 flex items-center justify-end gap-0.5">
+                            {confirmDeleteId === expense._id ? (
+                              <>
+                                <button
+                                  onClick={() => handleDelete(expense._id!)}
+                                  className="rounded-full bg-[var(--danger)] px-2 py-1 text-[10px] font-semibold text-white"
+                                >
+                                  Yes
+                                </button>
+                                <button
+                                  onClick={() => setConfirmDeleteId(null)}
+                                  className="rounded-full bg-[var(--surface-muted)] px-2 py-1 text-[10px] font-semibold text-[var(--text-soft)]"
+                                >
+                                  No
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <button
+                                  onClick={() => setEditingExpense(expense)}
+                                  className="rounded-full p-1.5 text-yellow-600 transition-colors hover:bg-yellow-100"
+                                >
+                                  <Edit2 className="h-3 w-3" />
+                                </button>
+                                <button
+                                  onClick={() => setConfirmDeleteId(expense._id!)}
+                                  className="rounded-full p-1.5 text-rose-600 transition-colors hover:bg-rose-100"
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
             )
