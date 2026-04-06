@@ -21,6 +21,14 @@ const bodyFont = Work_Sans({
 export const metadata: Metadata = {
   title: 'WalletWhiz - Personal Finance Tracker',
   description: 'Track your daily expenses, categorize spending, and gain insights into your financial habits.',
+  icons: {
+    icon: [
+      { url: '/icon-192.png', type: 'image/png' },
+      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    shortcut: '/icon-192.png',
+    apple: '/icon-192.png',
+  },
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
@@ -45,6 +53,8 @@ export default function RootLayout({
         <meta name="theme-color" content="#efe5d5" media="(prefers-color-scheme: light)" />
         <meta name="theme-color" content="#161412" media="(prefers-color-scheme: dark)" />
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        <link rel="icon" href="/icon-192.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/icon-192.png" />
         <link rel="manifest" href="/manifest.json" />
         {/* Runs before React hydrates — prevents theme flash */}
         <script dangerouslySetInnerHTML={{ __html: `
