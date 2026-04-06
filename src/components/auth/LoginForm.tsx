@@ -11,6 +11,7 @@ const demoAccounts = Object.entries(DEMO_ROLE_ACCOUNTS) as Array<[UserRole, type
 export default function LoginForm() {
   const [email, setEmail] = useState(demoAccounts[0][1].email)
   const [password, setPassword] = useState(demoAccounts[0][1].password)
+  const [selectedDemoRole, setSelectedDemoRole] = useState<UserRole | null>(demoAccounts[0][0])
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({})
@@ -83,8 +84,13 @@ export default function LoginForm() {
               onClick={() => {
                 setEmail(account.email)
                 setPassword(account.password)
+                setSelectedDemoRole(role)
               }}
-              className="rounded-lg border border-[var(--border-col)] bg-[var(--surface-muted)] px-3 py-2 text-xs font-medium text-[var(--text-soft)] transition-colors hover:border-[var(--accent)] hover:text-[var(--text-base)]"
+              className={`rounded-lg border px-3 py-2 text-xs font-semibold transition-all ${
+                selectedDemoRole === role
+                  ? 'border-[var(--accent)] bg-[var(--surface-1)] text-[var(--text-base)] ring-1 ring-[var(--accent)]'
+                  : 'border-[var(--border-col)] bg-[var(--surface-muted)] text-[var(--text-soft)] hover:border-[var(--accent)] hover:text-[var(--text-base)]'
+              }`}
             >
               {account.label}
             </button>
@@ -104,7 +110,11 @@ export default function LoginForm() {
               id="email"
               type="email"
               value={email}
-              onChange={(e) => { setEmail(e.target.value); if (errors.email) setErrors({ ...errors, email: undefined }) }}
+              onChange={(e) => {
+                setEmail(e.target.value)
+                setSelectedDemoRole(null)
+                if (errors.email) setErrors({ ...errors, email: undefined })
+              }}
               className={`block w-full pl-9 pr-3 py-3 border ${errors.email ? 'border-red-700' : 'border-[var(--border-input)]'} rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent transition-all`}
               placeholder="you@example.com"
             />
@@ -124,7 +134,11 @@ export default function LoginForm() {
               id="password"
               type={showPassword ? 'text' : 'password'}
               value={password}
-              onChange={(e) => { setPassword(e.target.value); if (errors.password) setErrors({ ...errors, password: undefined }) }}
+              onChange={(e) => {
+                setPassword(e.target.value)
+                setSelectedDemoRole(null)
+                if (errors.password) setErrors({ ...errors, password: undefined })
+              }}
               className={`block w-full pl-9 pr-10 py-3 border ${errors.password ? 'border-red-700' : 'border-[var(--border-input)]'} rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent transition-all`}
               placeholder="••••••••"
             />
